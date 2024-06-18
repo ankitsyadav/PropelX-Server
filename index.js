@@ -16,6 +16,10 @@ const limiter = require("./middlewares/rateLimiter");
 // Initialize express app
 const app = express();
 
+const corsOptions = {
+  origin: '0.0.0.0/0', // replace with your allowed origin
+  optionsSuccessStatus: 200
+};
 // Middlewares
 app.use(cors());
 app.use(express.json());
