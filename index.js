@@ -17,11 +17,11 @@ const limiter = require("./middlewares/rateLimiter");
 const app = express();
 
 const corsOptions = {
-  origin: '0.0.0.0/0', // replace with your allowed origin
+  origin: '*',
   optionsSuccessStatus: 200
 };
 // Middlewares
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(limiter);
 app.use('/uploads', express.static('uploads'));
