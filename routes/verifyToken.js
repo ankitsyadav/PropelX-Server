@@ -1,20 +1,27 @@
 const jwt = require('jsonwebtoken');
 
 const authenticateUser = (req, res, next) => {
-    const token = req.header('auth-token'); // For any authenticated request, need to pass auth-token header
+    const token = req.header('auth-token'); // Retrieve the token from request headers
+
+    // Check if token is missing
     if (!token) {
         console.log('No token found');
-        return res.status(401).send('Access denied');
+        return res.status(401).send('Access denied. No token provided.');
     }
 
     try {
+        // Verify the token with the provided JWT_SECRET
         const verified = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // Attach the verified user payload to the request object
         req.user = verified;
-        next(); // Move next() inside the try block
+
+        // Call next middleware function
+        next();
     } catch (error) {
-        console.log('Invalid token:', error);
-        return res.status(400).send({ message: 'Invalid token' });
+        console.error('Invalid token:', error.message);
+        return res.status(400).send('Invalid token.');
     }
-}
+};
 
 module.exports = authenticateUser;

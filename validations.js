@@ -18,7 +18,8 @@ const registerValidation = (data) => {
         date: Joi.date()
             .default(Date.now),
 
-        // Update further is any fields added to UserModel.js
+        studentId: Joi.string().required(),
+        phoneNo: Joi.string().required().min(10).max(10),
     })
 
     return schema.validate(data)
