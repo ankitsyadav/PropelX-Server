@@ -3,8 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const {registerValidation, loginValidation} = require('../validations.js');
 const User = require('../models/UserModel');
-const authenticateUser = require('./verifyToken.js')
-const { updateProfileImage } = require('../controllers/userController');
+
 
 // Routers
 router.post('/register', async (req, res) => {
@@ -28,7 +27,7 @@ router.post('/register', async (req, res) => {
        name: req.body.name,
        password: hashedPassword,
        studentId: req.body.studentId,
-       phoneNo: req.body.phoneNo
+       phoneNo: req.body.phoneNo,
     });
 
     try {
@@ -59,7 +58,6 @@ router.post('/login', async (req, res) => {
     res.header('auth-token', token).send(token);
 })
 
-router.put('/:id/profile-image', updateProfileImage);
 
 
 module.exports = router

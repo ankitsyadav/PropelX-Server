@@ -9,7 +9,8 @@ const mongoose = require("mongoose");
 const homeRoutes = require("./routes/home");
 const authRoutes = require("./routes/auth");
 const instituteRoutes = require("./routes/institute");
-const privateRoutes = require("./routes/privateRoutes");
+const userRoutes = require("./routes/user");
+
 
 const limiter = require("./middlewares/rateLimiter");
 
@@ -29,9 +30,9 @@ app.use('/uploads', express.static('uploads'));
 
 // Route Middlewares
 app.use("/", homeRoutes);
-app.use("/api/private", privateRoutes);
-app.use("/api/user", authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/institute", instituteRoutes); 
+app.use("/api/users", userRoutes);
 
 
 // Log Environment Variables

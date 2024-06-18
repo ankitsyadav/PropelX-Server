@@ -1,3 +1,4 @@
+const { type } = require("@hapi/joi/lib/extend");
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
@@ -31,7 +32,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: "https://i.postimg.cc/mgWFQR8p/5ffhts.jpg",
   }
-
+, skills: {
+  type: [String], 
+  default: [], 
+},
 
 
 
