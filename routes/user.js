@@ -6,6 +6,33 @@ const { updateProfileImage } = require('../controllers/userController');
 // POST /register and POST /login routes remain unchanged
 
 // PUT /me/skills to update user skills
+/**
+ * @swagger
+ * /skills:
+ *   put:
+ *     summary: Update user skills
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               skills:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     responses:
+ *       200:
+ *         description: Skills updated successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 router.put('/skills', authenticateUser, async (req, res) => {
   try {
     const userId = req.user._id;

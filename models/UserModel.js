@@ -12,11 +12,11 @@ const ProjectSchema = new mongoose.Schema({
   },
   url: {
     type: String,
-    default: "https://i.postimg.cc/mgWFQR8p/5ffhts.jpg",
   },
   cover_image:{
     type: String,
     
+    default: "https://i.postimg.cc/mgWFQR8p/5ffhts.jpg",
   },
   tools_n_tech:{
     type: [String], 

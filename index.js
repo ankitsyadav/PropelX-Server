@@ -1,9 +1,11 @@
 const dotenv = require("dotenv");
 dotenv.config();
+const { swaggerUi, swaggerSpec } = require('./swagger'); 
 
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+
 
 // Route imports
 const homeRoutes = require("./routes/home");
@@ -33,7 +35,7 @@ app.use("/", homeRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/institute", instituteRoutes); 
 app.use("/api/users", userRoutes);
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Log Environment Variables
 console.log("DB_URL:", process.env.DB_URL);
