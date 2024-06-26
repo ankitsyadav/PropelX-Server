@@ -1,6 +1,32 @@
 const { type } = require("@hapi/joi/lib/extend");
 const mongoose = require("mongoose");
 
+const ProjectSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  url: {
+    type: String,
+    default: "https://i.postimg.cc/mgWFQR8p/5ffhts.jpg",
+  },
+  cover_image:{
+    type: String,
+    
+  },
+  tools_n_tech:{
+    type: [String], 
+  default: [], 
+  },
+
+});
+
+
+
 const UserSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -35,6 +61,11 @@ const UserSchema = new mongoose.Schema({
 , skills: {
   type: [String], 
   default: [], 
+},
+
+projects: {
+  type: [ProjectSchema],
+  default: [],
 },
 
 

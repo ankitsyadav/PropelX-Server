@@ -1,33 +1,74 @@
 const router = require('express').Router();
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const User = require('../models/UserModel');
 const authenticateUser = require('./verifyToken.js');
 const { updateProfileImage } = require('../controllers/userController');
 
-
 // POST /register and POST /login routes remain unchanged
 
 // PUT /me/skills to update user skills
-
-router.put('/:id/profile-image',authenticateUser , updateProfileImage);
-
 router.put('/skills', authenticateUser, async (req, res) => {
-    try {
-      const userId = req.user._id; // Get user ID from authenticated token
-      const user = await User.findById(userId);
-      if (!user) return res.status(404).send('User not found');
-  
-      // Update user skills
-      user.skills = req.body.skills; // Assuming req.body.skills is an array of strings
-      await user.save();
-  
-      res.status(200).send('Skills updated successfully');
-    } catch (error) {
-      console.error(error.message);
-      res.status(500).send('Server Error');
-    }
-  });;
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).send('User not found');
+
+    // Update user skills
+    user.skills = req.body.skills; // Assuming req.body.skills is an array of strings
+    await user.save();
+
+    res.status(200).send('Skills updated successfully');
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// PUT /:id/profile-image to update profile image
+router.put('/:id/profile-image', authenticateUser, updateProfileImage);
+
+// POST /projects to add a new project
+router.post('/projects', authenticateUser, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const newProject = req.body.project; // Assuming req.body.project is a project object
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).send('User not found');
+
+    // Add new project
+    user.projects.push(newProject);
+    await user.save();
+
+    res.status(200).send('Project added successfully');
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// PUT /projects/:projectId to update an existing project
+router.put('/projects/:projectId', authenticateUser, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const projectId = req.params.projectId;
+    const updatedProject = req.body.project; // Assuming req.body.project is a project object with updated details
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).send('User not found');
+
+    // Find the project to update
+    const projectIndex = user.projects.findIndex(project => project._id.toString() === projectId);
+    if (projectIndex === -1) return res.status(404).send('Project not found');
+
+    // Update project details
+    user.projects[projectIndex] = { ...user.projects[projectIndex]._doc, ...updatedProject };
+    await user.save();
+
+    res.status(200).send('Project updated successfully');
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server Error');
+  }
+});
 
 // GET /me to get user details
 router.get('/me', authenticateUser, async (req, res) => {
