@@ -6,13 +6,11 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 
-
 // Route imports
 const homeRoutes = require("./routes/home");
 const authRoutes = require("./routes/auth");
 const instituteRoutes = require("./routes/institute");
 const userRoutes = require("./routes/user");
-
 
 const limiter = require("./middlewares/rateLimiter");
 
@@ -29,13 +27,14 @@ app.use(express.json());
 app.use(limiter);
 app.use('/api/uploads', express.static('uploads'));
 
+// Serve Swagger UI assets
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Route Middlewares
 app.use("/", homeRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/institute", instituteRoutes); 
 app.use("/api/users", userRoutes);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Log Environment Variables
 console.log("DB_URL:", process.env.DB_URL);
