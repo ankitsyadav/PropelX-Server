@@ -51,9 +51,80 @@ router.put('/skills', authenticateUser, async (req, res) => {
 });
 
 // PUT /:id/profile-image to update profile image
+/**
+ * @swagger
+ * /{id}/profile-image:
+ *   put:
+ *     summary: Update profile image
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The user ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               profileImage:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Profile image updated successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 router.put('/:id/profile-image', authenticateUser, updateProfileImage);
 
 // POST /projects to add a new project
+/**
+ * @swagger
+ * /projects:
+ *   post:
+ *     summary: Add a new project
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               project:
+ *                 type: object
+ *                 properties:
+ *                   title:
+ *                     type: string
+ *                   description:
+ *                     type: string
+ *                   url:
+ *                     type: string
+ *                   cover_image:
+ *                     type: string
+ *                   tools_n_tech:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *     responses:
+ *       200:
+ *         description: Project added successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 router.post('/projects', authenticateUser, async (req, res) => {
   try {
     const userId = req.user._id;
@@ -73,6 +144,51 @@ router.post('/projects', authenticateUser, async (req, res) => {
 });
 
 // PUT /projects/:projectId to update an existing project
+/**
+ * @swagger
+ * /projects/{projectId}:
+ *   put:
+ *     summary: Update an existing project
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: projectId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The project ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               project:
+ *                 type: object
+ *                 properties:
+ *                   title:
+ *                     type: string
+ *                   description:
+ *                     type: string
+ *                   url:
+ *                     type: string
+ *                   cover_image:
+ *                     type: string
+ *                   tools_n_tech:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *     responses:
+ *       200:
+ *         description: Project updated successfully
+ *       404:
+ *         description: User or project not found
+ *       500:
+ *         description: Server error
+ */
 router.put('/projects/:projectId', authenticateUser, async (req, res) => {
   try {
     const userId = req.user._id;
@@ -98,6 +214,60 @@ router.put('/projects/:projectId', authenticateUser, async (req, res) => {
 });
 
 // GET /me to get user details
+/**
+ * @swagger
+ * /me:
+ *   get:
+ *     summary: Get user details
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 phoneNo:
+ *                   type: string
+ *                 studentId:
+ *                   type: string
+ *                 profileImageUrl:
+ *                   type: string
+ *                 skills:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                 projects:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       title:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       url:
+ *                         type: string
+ *                       cover_image:
+ *                         type: string
+ *                       tools_n_tech:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 router.get('/me', authenticateUser, async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password'); // Exclude password field from response

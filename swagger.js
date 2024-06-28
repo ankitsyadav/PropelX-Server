@@ -5,16 +5,33 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDefinition = {
   openapi: '3.0.0',
   info: {
-    title: 'Your API Name',
+    title: 'PropelX-CLUB Server APIs',
     version: '1.0.0',
-    description: 'API documentation for Your API Name',
+    description: 'This is the API documentation for PropelX-CLUB, a platform for managing student profiles, projects, and authentication services. Here, you can find detailed information about the available endpoints, their parameters, and responses.',
   },
   servers: [
     {
-      url: 'http://localhost:3000/api', // Change this to your API's base URL
+      url: 'https://propel-x-server.vercel.app/', // Local development server
+      description: 'Production development server',
+    }
+  ],
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'JWT authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"',
+      },
+    },
+  },
+  security: [
+    {
+      bearerAuth: [],
     },
   ],
 };
+
 
 // Options for the swagger docs
 const options = {

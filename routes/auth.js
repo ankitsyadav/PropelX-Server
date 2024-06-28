@@ -6,6 +6,56 @@ const User = require('../models/UserModel');
 
 
 // Routers
+// POST /register
+/**
+ * @swagger
+ * /register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: user@example.com
+ *               name:
+ *                 type: string
+ *                 example: John Doe
+ *               password:
+ *                 type: string
+ *                 example: yourpassword
+ *               studentId:
+ *                 type: string
+ *                 example: stu12345
+ *               phoneNo:
+ *                 type: string
+ *                 example: 1234567890
+ *     responses:
+ *       200:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: string
+ *                   example: 60c72b2f5f1b2c6f5e2d5b6c
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: Email address already exists
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/register', async (req, res) => {
 
 
@@ -38,6 +88,50 @@ router.post('/register', async (req, res) => {
     }
 })
 
+
+// POST /login
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Login a user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: user@example.com
+ *               password:
+ *                 type: string
+ *                 example: yourpassword
+ *     responses:
+ *       200:
+ *         description: User logged in successfully
+ *         headers:
+ *           auth-token:
+ *             schema:
+ *               type: string
+ *               example: your_jwt_token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: your_jwt_token
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: Email or Password do not match
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/login', async (req, res) => {
 
     // Validation check
