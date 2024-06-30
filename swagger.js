@@ -45,4 +45,5 @@ const options = {
 // Initialize swagger-jsdoc
 const swaggerSpec = swaggerJSDoc(options);
 
+// Export swaggerUi and swaggerSpec for use in your application
 module.exports = { swaggerUi, swaggerSpec };
