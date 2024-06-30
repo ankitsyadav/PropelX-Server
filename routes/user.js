@@ -279,4 +279,17 @@ router.get('/me', authenticateUser, async (req, res) => {
   }
 });
 
+
+router.get('/getAll',async function (req, res) {
+  try {
+    const users = await User.find().select('-password');
+    if (!users) return res.status(404).send('User not found');
+    res.status(200).json(users);
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send('Server Error');
+
+    
+}})
+
 module.exports = router;
