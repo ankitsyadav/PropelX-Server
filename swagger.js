@@ -11,8 +11,12 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: 'https://propel-x-server.vercel.app/', // Local development server
-      description: 'Production development server',
+      url: 'http://localhost:3000/', // Local development server
+      description: 'Local development server',
+    },
+    {
+      url: 'https://propel-x-server.vercel.app/', // Production server
+      description: 'Production server',
     }
   ],
   components: {
@@ -32,12 +36,10 @@ const swaggerDefinition = {
   ],
 };
 
-
 // Options for the swagger docs
 const options = {
   swaggerDefinition,
-  // Path to the API docs
-  apis: ['./routes/*.js'], // Point to your route files
+  apis: ['./routes/*.js'], // Path to your route files
 };
 
 // Initialize swagger-jsdoc
