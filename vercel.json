@@ -9,26 +9,18 @@
   "routes": [
     {
       "src": "/api-docs/(.*)",
-      "dest": "/api-docs/$1"
+      "dest": "/index.js",
+      "headers": {
+        "Access-Control-Allow-Origin": "*"
+      }
     },
     {
       "src": "/api-docs",
-      "dest": "/api-docs/index.html"
+      "dest": "/index.js"
     },
     {
       "src": "/(.*)",
-      "dest": "index.js"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/api-docs/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        }
-      ]
+      "dest": "/index.js"
     }
   ]
 }
