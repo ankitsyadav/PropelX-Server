@@ -21,17 +21,17 @@ const swaggerDefinition = {
   ],
   components: {
     securitySchemes: {
-      bearerAuth: {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        description: 'JWT authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"',
+      authToken: {
+        type: 'apiKey',
+        name: 'auth-token',
+        in: 'header',
+        description: 'Authorization token header using the auth-token scheme. Example: "auth-token: sometokendnjsabdkjs"',
       },
     },
   },
   security: [
     {
-      bearerAuth: [],
+      authToken: [],
     },
   ],
 };
@@ -45,15 +45,4 @@ const options = {
 // Initialize swagger-jsdoc
 const swaggerSpec = swaggerJSDoc(options);
 
-module.exports = { 
-  swaggerUi, 
-  swaggerSpec, 
-  customOptions: {
-    customCss: '.swagger-ui .opblock .opblock-summary-path-description-wrapper { align-items: center; display: flex; flex-wrap: wrap; gap: 0 10px; padding: 0 10px; width: 100%; }',
-    customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
-    customJs: [
-      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js',
-      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js',
-    ]
-  }
-};
+module.exports = { swaggerUi, swaggerSpec };
