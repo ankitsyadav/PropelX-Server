@@ -1,7 +1,7 @@
-const router = require('express').Router();
-const User = require('../models/UserModel');
-const authenticateUser = require('./verifyToken.js');
-const { updateProfileImage } = require('../controllers/userController');
+const router = require("express").Router();
+const User = require("../models/UserModel");
+const authenticateUser = require("./verifyToken.js");
+const { updateProfileImage } = require("../controllers/userController");
 
 // POST /register and POST /login routes remain unchanged
 
@@ -33,20 +33,20 @@ const { updateProfileImage } = require('../controllers/userController');
  *       500:
  *         description: Server error
  */
-router.put('/skills', authenticateUser, async (req, res) => {
+router.put("/skills", authenticateUser, async (req, res) => {
   try {
     const userId = req.user._id;
     const user = await User.findById(userId);
-    if (!user) return res.status(404).send('User not found');
+    if (!user) return res.status(404).send("User not found");
 
     // Update user skills
     user.skills = req.body.skills; // Assuming req.body.skills is an array of strings
     await user.save();
 
-    res.status(200).send('Skills updated successfully');
+    res.status(200).send("Skills updated successfully");
   } catch (error) {
     console.error(error.message);
-    res.status(500).send('Server Error');
+    res.status(500).send("Server Error");
   }
 });
 
@@ -84,7 +84,7 @@ router.put('/skills', authenticateUser, async (req, res) => {
  *       500:
  *         description: Server error
  */
-router.put('/:id/profile-image', authenticateUser, updateProfileImage);
+router.put("/:id/profile-image", authenticateUser, updateProfileImage);
 
 // POST /projects to add a new project
 /**
@@ -125,21 +125,21 @@ router.put('/:id/profile-image', authenticateUser, updateProfileImage);
  *       500:
  *         description: Server error
  */
-router.post('/projects', authenticateUser, async (req, res) => {
+router.post("/projects", authenticateUser, async (req, res) => {
   try {
     const userId = req.user._id;
     const newProject = req.body.project; // Assuming req.body.project is a project object
     const user = await User.findById(userId);
-    if (!user) return res.status(404).send('User not found');
+    if (!user) return res.status(404).send("User not found");
 
     // Add new project
     user.projects.push(newProject);
     await user.save();
 
-    res.status(200).send('Project added successfully');
+    res.status(200).send("Project added successfully");
   } catch (error) {
     console.error(error.message);
-    res.status(500).send('Server Error');
+    res.status(500).send("Server Error");
   }
 });
 
@@ -189,27 +189,37 @@ router.post('/projects', authenticateUser, async (req, res) => {
  *       500:
  *         description: Server error
  */
-router.put('/projects/:projectId', authenticateUser, async (req, res) => {
+router.put("/projects/:projectId", authenticateUser, async (req, res) => {
   try {
     const userId = req.user._id;
     const projectId = req.params.projectId;
     const updatedProject = req.body.project; // Assuming req.body.project is a project object with updated details
 
     const user = await User.findById(userId);
-    if (!user) return res.status(404).send('User not found');
+    if (!user) return res.status(404).send("User not found");
 
     // Find the project to update
-    const projectIndex = user.projects.findIndex(project => project._id.toString() === projectId);
-    if (projectIndex === -1) return res.status(404).send('Project not found');
+    const projectIndex = user.projects.findIndex(
+      (project) => project._id.toString() === projectId
+    );
+    if (projectIndex === -1) return res.status(404).send("Project not found");
 
     // Update project details
-    user.projects[projectIndex] = { ...user.projects[projectIndex]._doc, ...updatedProject };
+    user.projects[projectIndex] = {
+      ...user.projects[projectIndex]._doc,
+      ...updatedProject,
+    };
     await user.save();
 
-    res.status(200).send('Project updated successfully');
+    res
+      .status(200)
+      .send({
+        message: "Project updated successfully",
+        updatedProject: user.projects[projectIndex],
+      });
   } catch (error) {
     console.error(error.message);
-    res.status(500).send('Server Error');
+    res.status(500).send("Server Error");
   }
 });
 
@@ -268,28 +278,26 @@ router.put('/projects/:projectId', authenticateUser, async (req, res) => {
  *       500:
  *         description: Server error
  */
-router.get('/me', authenticateUser, async (req, res) => {
+router.get("/me", authenticateUser, async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select('-password'); // Exclude password field from response
-    if (!user) return res.status(404).send('User not found');
+    const user = await User.findById(req.user._id).select("-password"); // Exclude password field from response
+    if (!user) return res.status(404).send("User not found");
 
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).send('Server Error');
+    res.status(500).send("Server Error");
   }
 });
 
-
-router.get('/getAll',async function (req, res) {
+router.get("/getAll", async function (req, res) {
   try {
-    const users = await User.find().select('-password');
-    if (!users) return res.status(404).send('User not found');
+    const users = await User.find().select("-password");
+    if (!users) return res.status(404).send("User not found");
     res.status(200).json(users);
-    } catch (error) {
-      console.error(error.message);
-      res.status(500).send('Server Error');
-
-    
-}})
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
 
 module.exports = router;
