@@ -1,7 +1,5 @@
 const dotenv = require("dotenv");
 dotenv.config();
-const { swaggerUi, swaggerSpec } = require('./swagger');
-
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -11,8 +9,15 @@ const homeRoutes = require("./routes/home");
 const authRoutes = require("./routes/auth");
 const instituteRoutes = require("./routes/institute");
 const userRoutes = require("./routes/user");
+const rateLimit = require('express-rate-limit');
 
-const limiter = require("./middlewares/rateLimiter");
+let swaggerUi, swaggerSpec;
+
+if (process.env.NODE_ENV !== 'production') {
+  const swagger = require('./swagger');
+  swaggerUi = swagger.swaggerUi;
+  swaggerSpec = swagger.swaggerSpec;
+}
 
 // Initialize express app
 const app = express();
@@ -21,6 +26,12 @@ const corsOptions = {
   origin: '*',
   optionsSuccessStatus: 200
 };
+app.set('trust proxy', true);
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later',
+});
 
 // Middlewares
 app.use(cors(corsOptions));
@@ -28,8 +39,10 @@ app.use(express.json());
 app.use(limiter);
 app.use('/api/uploads', express.static('uploads'));
 
-// Serve Swagger UI assets
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Serve Swagger UI assets only in non-production environments
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+}
 
 // Route Middlewares
 app.use("/", homeRoutes);
