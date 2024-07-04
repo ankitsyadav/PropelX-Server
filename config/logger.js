@@ -15,7 +15,7 @@ const logger = createLogger({
     customFormat
   ),
   transports: [
-    new transports.Console()
+    new transports.Console() // Use console transport only
   ]
 });
 

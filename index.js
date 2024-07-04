@@ -4,7 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const logger = require('./config/logger');
-const errorHandler = require('./middleware/errorHandler'); // Correct import
+const errorHandler = require('./middlewares/errorHandler'); // Correct import
 const { swaggerUi, swaggerSpec } = require('./config/swagger'); // Correct import
 
 // Route imports
