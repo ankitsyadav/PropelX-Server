@@ -1,5 +1,4 @@
 {
-  "name": "express-jwt",
   "version": 2,
   "builds": [
     {
@@ -7,10 +6,14 @@
       "use": "@vercel/node"
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/index.js"
+      "src": "/api-docs",
+      "dest": "/api-docs"
+    },
+    {
+      "src": "/api-docs/(.*)",
+      "dest": "/api-docs/$1"
     }
   ]
 }
