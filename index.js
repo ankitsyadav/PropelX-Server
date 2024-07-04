@@ -5,8 +5,8 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const logger = require('./config/logger');
 const errorHandler = require('./middlewares/errorHandler');
-const { swaggerUi, swaggerSpec } = require('./config/swagger'); 
-const path = require('path'); 
+const { swaggerUi, swaggerSpec } = require('./config/swagger');
+const path = require('path');
 
 // Route imports
 const homeRoutes = require("./routes/home");
@@ -37,7 +37,7 @@ app.use(limiter);
 
 // Serve Swagger UI assets
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use('/swagger-ui', express.static(path.join(__dirname, 'node_modules/swagger-ui-dist')));
+app.use('/swagger-ui', express.static(path.join(__dirname, 'node_modules/swagger-ui-dist'))); // Serve static files
 
 // Route Middlewares
 app.use("/", homeRoutes);
@@ -75,6 +75,11 @@ mongoose
 
 // Error Handling Middleware
 app.use(errorHandler);
+
+// Default Route Handler for undefined routes
+app.use((req, res, next) => {
+  res.status(404).send('404: Page not found');
+});
 
 // Start the server
 const port = process.env.PORT || 3000;
