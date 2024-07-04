@@ -4,8 +4,9 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const logger = require('./config/logger');
-const errorHandler = require('./middlewares/errorHandler'); // Correct import
-const { swaggerUi, swaggerSpec } = require('./config/swagger'); // Correct import
+const errorHandler = require('./middlewares/errorHandler');
+const { swaggerUi, swaggerSpec } = require('./config/swagger'); 
+const path = require('path'); 
 
 // Route imports
 const homeRoutes = require("./routes/home");
@@ -36,6 +37,7 @@ app.use(limiter);
 
 // Serve Swagger UI assets
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/swagger-ui', express.static(path.join(__dirname, 'node_modules/swagger-ui-dist')));
 
 // Route Middlewares
 app.use("/", homeRoutes);
