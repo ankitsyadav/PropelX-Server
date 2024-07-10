@@ -1,3 +1,5 @@
+// File: index.js
+
 const dotenv = require("dotenv");
 dotenv.config();
 const express = require("express");
@@ -7,13 +9,14 @@ const logger = require('./config/logger');
 const errorHandler = require('./middlewares/errorHandler');
 const { swaggerUi, swaggerSpec } = require('./config/swagger');
 const path = require('path');
+const rateLimit = require('express-rate-limit');
 
 // Route imports
 const homeRoutes = require("./routes/home");
 const authRoutes = require("./routes/auth");
 const instituteRoutes = require("./routes/institute");
 const userRoutes = require("./routes/user");
-const rateLimit = require('express-rate-limit');
+const feedRoutes= require('./routes/feeds');
 // const userAgentCheck = require('./middlewares/checkUserAgent');
 
 // Initialize express app
@@ -23,11 +26,19 @@ const corsOptions = {
   origin: '*',
   optionsSuccessStatus: 200
 };
-app.set('trust proxy', true);
+
+// Set strictQuery option for Mongoose
+mongoose.set('strictQuery', true);
+
+// Configure rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later',
+  message: "Too many requests from this IP, please try again after an hour",
+  handler: (req, res, next, options) => {
+    res.status(options.statusCode).json({ error: options.message });
+  },
+  trustProxy: false // Set trust proxy to false to prevent IP bypass
 });
 
 // Middlewares
@@ -42,11 +53,11 @@ app.use('/swagger-ui', express.static(path.join(__dirname, 'node_modules/swagger
 // Route Middlewares
 app.use("/", homeRoutes);
 // app.use(userAgentCheck);
-
 app.use("/api/auth", authRoutes);
 app.use('/api/uploads', express.static('uploads'));
 app.use("/api/institute", instituteRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/feeds", feedRoutes);
 
 // Log Environment Variables
 logger.info(`DB_URL: ${process.env.DB_URL}`);
