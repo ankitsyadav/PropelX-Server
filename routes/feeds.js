@@ -3,7 +3,46 @@ const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio'); 
 
-
+/**
+ * @swagger
+ * /api/feeds/latest-articles:
+ *   post:
+ *     summary: Fetch the latest articles based on a skill
+ *     tags: [Feeds]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - skill
+ *             properties:
+ *               skill:
+ *                 type: string
+ *                 example: 'JavaScript'
+ *     responses:
+ *       200:
+ *         description: List of latest articles
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 articles:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       title:
+ *                         type: string
+ *                       link:
+ *                         type: string
+ *       400:
+ *         description: Skill is required
+ *       500:
+ *         description: An error occurred while fetching articles
+ */
 router.post('/latest-articles', async (req, res) => {
     const { skill } = req.body;
 
