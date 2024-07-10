@@ -7,7 +7,7 @@ const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
 
-const REMOVE_BG_API_KEY = 'tAWyFjxDH46EgXKYyPphjhzu'; // Replace with your remove.bg API key
+ // Replace with your remove.bg API key
 
 // Configure Multer to use Cloudinary storage
 const storage = new CloudinaryStorage({
@@ -43,7 +43,7 @@ const updateProfileImage = async (req, res) => {
                 method: 'post',
                 url: 'https://api.remove.bg/v1.0/removebg',
                 headers: {
-                    'X-Api-Key': REMOVE_BG_API_KEY,
+                    'X-Api-Key': process.env.REMOVE_BG_API_KEY,
                 },
                 data: {
                     image_url: cloudinaryImageUrl,
@@ -109,3 +109,5 @@ const updateProfileImage = async (req, res) => {
 module.exports = {
     updateProfileImage
 };
+
+
