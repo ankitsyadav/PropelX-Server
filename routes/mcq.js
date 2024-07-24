@@ -21,7 +21,7 @@ router.get('/mcq',authenticateUser, async (req, res) => {
 async function fetchQuestions(skill) {
   try {
     const numQuestions = 5;
-    const response = await axios.get(`https://opentdb.com/api.php?amount=${numQuestions}&category=18&difficulty=easy&type=multiple`);
+    const response = await axios.get(`https://opentdb.com/api.php?amount=${numQuestions}&category=18&difficulty=medium&type=multiple`);
 
     const data = response.data.results.map((question, index) => ({
       question: question.question,

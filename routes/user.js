@@ -1,7 +1,8 @@
-const router = require("express").Router();
-const User = require("../models/UserModel");
-const authenticateUser = require("./verifyToken.js");
-const { updateProfileImage } = require("../controllers/userController");
+const express = require('express');
+const router = express.Router();
+const User = require('../models/UserModel');
+const authenticateUser = require('./verifyToken.js');
+const { updateProfileImage } = require('../controllers/userController');
 
 // POST /register and POST /login routes remain unchanged
 
@@ -21,10 +22,10 @@ const { updateProfileImage } = require("../controllers/userController");
  *           schema:
  *             type: object
  *             properties:
- *               skills:
- *                 type: array
- *                 items:
- *                   type: string
+ *               skill_name:
+ *                 type: string
+ *               score:
+ *                 type: number
  *     responses:
  *       200:
  *         description: Skills updated successfully
@@ -33,20 +34,29 @@ const { updateProfileImage } = require("../controllers/userController");
  *       500:
  *         description: Server error
  */
-router.put("/skills", authenticateUser, async (req, res) => {
+router.put('/skills', authenticateUser, async (req, res) => {
   try {
     const userId = req.user._id;
     const user = await User.findById(userId);
-    if (!user) return res.status(404).send("User not found");
+    if (!user) return res.status(404).send('User not found');
 
-    // Update user skills
-    user.skills = req.body.skills; // Assuming req.body.skills is an array of strings
-    await user.save();
+    const { skill_name, score } = req.body;
+    if (!skill_name || score === undefined) {
+      return res.status(400).send('Skill name and score are required');
+    }
 
-    res.status(200).send("Skills updated successfully");
+    const existingSkillIndex = user.skills.findIndex(skill => skill.skill_name === skill_name);
+    if (existingSkillIndex !== -1) {
+      return res.status(400).send('Skill already exists');
+    } else {
+      // Add the new skill
+      user.skills.push({ skill_name, score });
+      await user.save();
+      return res.status(200).send('Skill added successfully');
+    }
   } catch (error) {
     console.error(error.message);
-    res.status(500).send("Server Error");
+    res.status(500).send('Server Error');
   }
 });
 
@@ -102,21 +112,18 @@ router.put("/:id/profile-image", authenticateUser, updateProfileImage);
  *           schema:
  *             type: object
  *             properties:
- *               project:
- *                 type: object
- *                 properties:
- *                   title:
- *                     type: string
- *                   description:
- *                     type: string
- *                   url:
- *                     type: string
- *                   cover_image:
- *                     type: string
- *                   tools_n_tech:
- *                     type: array
- *                     items:
- *                       type: string
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               url:
+ *                 type: string
+ *               cover_image:
+ *                 type: string
+ *               tools_n_tech:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       200:
  *         description: Project added successfully
@@ -128,11 +135,10 @@ router.put("/:id/profile-image", authenticateUser, updateProfileImage);
 router.post("/projects", authenticateUser, async (req, res) => {
   try {
     const userId = req.user._id;
-    const newProject = req.body.project; // Assuming req.body.project is a project object
+    const newProject = req.body; // Assuming req.body contains the project object
     const user = await User.findById(userId);
     if (!user) return res.status(404).send("User not found");
 
-    // Add new project
     user.projects.push(newProject);
     await user.save();
 
@@ -166,21 +172,18 @@ router.post("/projects", authenticateUser, async (req, res) => {
  *           schema:
  *             type: object
  *             properties:
- *               project:
- *                 type: object
- *                 properties:
- *                   title:
- *                     type: string
- *                   description:
- *                     type: string
- *                   url:
- *                     type: string
- *                   cover_image:
- *                     type: string
- *                   tools_n_tech:
- *                     type: array
- *                     items:
- *                       type: string
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               url:
+ *                 type: string
+ *               cover_image:
+ *                 type: string
+ *               tools_n_tech:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       200:
  *         description: Project updated successfully
@@ -193,30 +196,26 @@ router.put("/projects/:projectId", authenticateUser, async (req, res) => {
   try {
     const userId = req.user._id;
     const projectId = req.params.projectId;
-    const updatedProject = req.body.project; // Assuming req.body.project is a project object with updated details
+    const updatedProject = req.body; // Assuming req.body contains the updated project details
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).send("User not found");
 
-    // Find the project to update
     const projectIndex = user.projects.findIndex(
       (project) => project._id.toString() === projectId
     );
     if (projectIndex === -1) return res.status(404).send("Project not found");
 
-    // Update project details
     user.projects[projectIndex] = {
       ...user.projects[projectIndex]._doc,
       ...updatedProject,
     };
     await user.save();
 
-    res
-      .status(200)
-      .send({
-        message: "Project updated successfully",
-        updatedProject: user.projects[projectIndex],
-      });
+    res.status(200).send({
+      message: "Project updated successfully",
+      updatedProject: user.projects[projectIndex],
+    });
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Server Error");
@@ -255,7 +254,12 @@ router.put("/projects/:projectId", authenticateUser, async (req, res) => {
  *                 skills:
  *                   type: array
  *                   items:
- *                     type: string
+ *                     type: object
+ *                     properties:
+ *                       skill_name:
+ *                         type: string
+ *                       score:
+ *                         type: number
  *                 projects:
  *                   type: array
  *                   items:
@@ -280,19 +284,21 @@ router.put("/projects/:projectId", authenticateUser, async (req, res) => {
  */
 router.get("/me", authenticateUser, async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select("-password"); // Exclude password field from response
+    const user = await User.findById(req.user._id).select("-password");
     if (!user) return res.status(404).send("User not found");
 
     res.status(200).json(user);
   } catch (error) {
+    console.error(error.message);
     res.status(500).send("Server Error");
   }
 });
 
-router.get("/getAll", async function (req, res) {
+// GET /getAll to get all users
+router.get("/getAll", async (req, res) => {
   try {
     const users = await User.find().select("-password");
-    if (!users) return res.status(404).send("User not found");
+    if (!users) return res.status(404).send("Users not found");
     res.status(200).json(users);
   } catch (error) {
     console.error(error.message);

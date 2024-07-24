@@ -1,6 +1,18 @@
 const { type } = require("@hapi/joi/lib/extend");
 const mongoose = require("mongoose");
 
+const skillsSchema = new mongoose.Schema({
+  skill_name: {
+    type: String,
+    required: true,
+  },
+  score: {
+    type: Number,
+    required: true,
+
+  },
+});
+
 const ProjectSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -59,7 +71,7 @@ const UserSchema = new mongoose.Schema({
     default: "https://i.postimg.cc/mgWFQR8p/5ffhts.jpg",
   }
 , skills: {
-  type: [String], 
+  type: [skillsSchema], 
   default: [], 
 },
 
