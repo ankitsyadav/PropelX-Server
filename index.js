@@ -17,6 +17,7 @@ const authRoutes = require("./routes/auth");
 const instituteRoutes = require("./routes/institute");
 const userRoutes = require("./routes/user");
 const feedRoutes= require('./routes/feeds');
+const mcqRoutes= require('./routes/mcq');
 // const userAgentCheck = require('./middlewares/checkUserAgent');
 
 // Initialize express app
@@ -58,6 +59,7 @@ app.use('/api/uploads', express.static('uploads'));
 app.use("/api/institute", instituteRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/feeds", feedRoutes);
+app.use("/api/skills", mcqRoutes);
 
 // Log Environment Variables
 logger.info(`DB_URL: ${process.env.DB_URL}`);

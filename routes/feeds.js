@@ -1,7 +1,7 @@
 const router = require("express").Router();
-const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio'); 
+const authenticateUser = require("./verifyToken.js");
 
 /**
  * @swagger
@@ -43,7 +43,7 @@ const cheerio = require('cheerio');
  *       500:
  *         description: An error occurred while fetching articles
  */
-router.post('/latest-articles', async (req, res) => {
+router.post('/latest-articles',authenticateUser, async (req, res) => {
     const { skill } = req.body;
 
     if (!skill) {
