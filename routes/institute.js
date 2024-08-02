@@ -1,8 +1,8 @@
 const router = require("express").Router();
-const Institute = require('../models/InstituteModel');
+const Institute = require("../models/InstituteModel");
 
 // Route to add an institute
-router.post('/add', async (req, res) => {
+router.post("/add", async (req, res) => {
   try {
     const { name, instituteId } = req.body;
     const newInstitute = new Institute({ name, instituteId });
@@ -14,7 +14,7 @@ router.post('/add', async (req, res) => {
 });
 
 // Route to list all institutes
-router.get('/list', async (req, res) => {
+router.get("/list", async (req, res) => {
   try {
     const institutes = await Institute.find();
     res.status(200).json(institutes);

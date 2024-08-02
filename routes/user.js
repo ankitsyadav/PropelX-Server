@@ -1,8 +1,8 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const User = require('../models/UserModel');
-const authenticateUser = require('./verifyToken.js');
-const { updateProfileImage } = require('../controllers/userController');
+const User = require("../models/UserModel");
+const authenticateUser = require("./verifyToken.js");
+const { updateProfileImage } = require("../controllers/userController");
 
 // POST /register and POST /login routes remain unchanged
 
@@ -34,29 +34,31 @@ const { updateProfileImage } = require('../controllers/userController');
  *       500:
  *         description: Server error
  */
-router.put('/skills', authenticateUser, async (req, res) => {
+router.put("/skills", authenticateUser, async (req, res) => {
   try {
     const userId = req.user._id;
     const user = await User.findById(userId);
-    if (!user) return res.status(404).send('User not found');
+    if (!user) return res.status(404).send("User not found");
 
     const { skill_name, score } = req.body;
     if (!skill_name || score === undefined) {
-      return res.status(400).send('Skill name and score are required');
+      return res.status(400).send("Skill name and score are required");
     }
 
-    const existingSkillIndex = user.skills.findIndex(skill => skill.skill_name === skill_name);
+    const existingSkillIndex = user.skills.findIndex(
+      (skill) => skill.skill_name === skill_name
+    );
     if (existingSkillIndex !== -1) {
-      return res.status(400).send('Skill already exists');
+      return res.status(400).send("Skill already exists");
     } else {
       // Add the new skill
       user.skills.push({ skill_name, score });
       await user.save();
-      return res.status(200).send('Skill added successfully');
+      return res.status(200).send("Skill added successfully");
     }
   } catch (error) {
     console.error(error.message);
-    res.status(500).send('Server Error');
+    res.status(500).send("Server Error");
   }
 });
 

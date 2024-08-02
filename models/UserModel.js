@@ -9,7 +9,6 @@ const skillsSchema = new mongoose.Schema({
   score: {
     type: Number,
     required: true,
-
   },
 });
 
@@ -25,19 +24,16 @@ const ProjectSchema = new mongoose.Schema({
   url: {
     type: String,
   },
-  cover_image:{
+  cover_image: {
     type: String,
-    
+
     default: "https://i.postimg.cc/mgWFQR8p/5ffhts.jpg",
   },
-  tools_n_tech:{
-    type: [String], 
-  default: [], 
+  tools_n_tech: {
+    type: [String],
+    default: [],
   },
-
 });
-
-
 
 const UserSchema = new mongoose.Schema({
   email: {
@@ -69,23 +65,18 @@ const UserSchema = new mongoose.Schema({
   profileImageUrl: {
     type: String,
     default: "https://i.postimg.cc/mgWFQR8p/5ffhts.jpg",
-  }
-, skills: {
-  type: [skillsSchema], 
-  default: [], 
-},
+  },
+  skills: {
+    type: [skillsSchema],
+    default: [],
+  },
 
-projects: {
-  type: [ProjectSchema],
-  default: [],
-},
-
-
-
+  projects: {
+    type: [ProjectSchema],
+    default: [],
+  },
 });
 
-
 ///we can define functions heat6
-
 
 module.exports = mongoose.model("User", UserSchema);
