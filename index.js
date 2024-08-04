@@ -9,7 +9,7 @@ const { swaggerUi, swaggerSpec } = require("./config/swagger");
 const path = require("path");
 const rateLimit = require("express-rate-limit");
 const session = require("express-session");
-const linkedinAuth = require("./routes/linkedinAuth");
+// const linkedinAuth = require("./routes/linkedinAuth");
 
 // Route imports
 const homeRoutes = require("./routes/home");
@@ -63,12 +63,12 @@ app.use(
 ); // Serve static files
 
 // Initialize LinkedIn authentication routes
-app.use(linkedinAuth);
+// app.use(linkedinAuth);
 
 // LinkedIn login link
-app.get("/", (req, res) => {
-  res.send('<a href="/auth/linkedin">Log in with LinkedIn</a>');
-});
+// app.get("/", (req, res) => {
+//   res.send('<a href="/auth/linkedin">Log in with LinkedIn</a>');
+// });
 
 // Route Middlewares
 app.use("/", homeRoutes);

@@ -308,4 +308,88 @@ router.get("/getAll", async (req, res) => {
   }
 });
 
+// PUT /me/socialMediaLinks to update social media links
+/**
+ * @swagger
+ * /me/socialMediaLinks:
+ *   put:
+ *     summary: Update user social media links
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               socialMediaLinks:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     platform:
+ *                       type: string
+ *                     link:
+ *                       type: string
+ *     responses:
+ *       200:
+ *         description: Social media links updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   platform:
+ *                     type: string
+ *                   link:
+ *                     type: string
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.put("/me/socialMediaLinks", authenticateUser, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { socialMediaLinks } = req.body;
+
+    if (!Array.isArray(socialMediaLinks) || socialMediaLinks.length === 0) {
+      return res.status(400).send("Social media links are required");
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).send("User not found");
+
+    // Create a map for quick lookup of existing platforms
+    const existingLinksMap = new Map();
+    user.socialMediaLinks.forEach((link) => {
+      existingLinksMap.set(link.platform, link);
+    });
+
+    // Iterate through the provided social media links and update/add them
+    socialMediaLinks.forEach((newLink) => {
+      if (existingLinksMap.has(newLink.platform)) {
+        // Update the existing link
+        existingLinksMap.get(newLink.platform).link = newLink.link;
+      } else {
+        // Add new link
+        user.socialMediaLinks.push(newLink);
+      }
+    });
+
+    await user.save();
+
+    res.status(200).json(user.socialMediaLinks);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
+
 module.exports = router;

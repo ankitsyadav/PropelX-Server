@@ -1,6 +1,17 @@
 const { type } = require("@hapi/joi/lib/extend");
 const mongoose = require("mongoose");
 
+const socialMediaLinksSchema = new mongoose.Schema({
+  platform: {
+    type: String,
+    required: true,
+  },
+  link: {
+    type: String,
+    required: true,
+  },
+});
+
 const skillsSchema = new mongoose.Schema({
   skill_name: {
     type: String,
@@ -74,6 +85,9 @@ const UserSchema = new mongoose.Schema({
   projects: {
     type: [ProjectSchema],
     default: [],
+  },
+  socialMediaLinks: {
+    type: [socialMediaLinksSchema],
   },
 });
 
