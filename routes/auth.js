@@ -4,7 +4,9 @@ const jwt = require("jsonwebtoken");
 const { registerValidation, loginValidation } = require("../validations.js");
 const User = require("../models/UserModel");
 
-// Routers
+
+
+// Routers asasass
 // POST /register
 /**
  * @swagger
