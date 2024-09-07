@@ -19,6 +19,8 @@ const userRoutes = require("./routes/user");
 const feedRoutes = require("./routes/feeds");
 const mcqRoutes = require("./routes/mcq");
 
+const githubAuthRoutes = require("./routes/gitHub");
+
 // Initialize express app
 const app = express();
 
@@ -78,6 +80,7 @@ app.use("/api/institute", instituteRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/feeds", feedRoutes);
 app.use("/api/skills", mcqRoutes);
+app.use("/api/auth/github", githubAuthRoutes);
 
 // Log Environment Variables
 logger.info(`DB_URL: ${process.env.DB_URL}`);
