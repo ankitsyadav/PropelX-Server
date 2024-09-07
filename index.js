@@ -18,6 +18,8 @@ const instituteRoutes = require("./routes/institute");
 const userRoutes = require("./routes/user");
 const feedRoutes = require("./routes/feeds");
 const mcqRoutes = require("./routes/mcq");
+const githubRoutes = require("./routes/github");
+const authController = require("./controllers/authController");
 
 // Initialize express app
 const app = express();
@@ -78,6 +80,7 @@ app.use("/api/institute", instituteRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/feeds", feedRoutes);
 app.use("/api/skills", mcqRoutes);
+app.use("/api/auth/github", githubRoutes);
 
 // Log Environment Variables
 logger.info(`DB_URL: ${process.env.DB_URL}`);
@@ -113,8 +116,8 @@ app.use((req, res, next) => {
 });
 
 // Start the server
-const port = process.env.PORT || 8080;
-
-app.listen(port, () => {
-  logger.info(`Application running at http://localhost:${port}/`);
+const PORT = process.env.PORT || 0; // 0 will use a random available port
+// ... existing code ...
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

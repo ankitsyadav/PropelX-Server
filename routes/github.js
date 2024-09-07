@@ -7,4 +7,9 @@ const router = express.Router();
 router.get('/github', authController.githubAuth);
 router.get('/github/callback', authController.githubCallback);
 
+// Optimize by chaining route definitions
+router
+  .get('/github', authController.githubAuth)
+  .get('/github/callback', authController.githubCallback);
+
 module.exports = router;
