@@ -67,7 +67,7 @@ router.post("/latest-articles", authenticateUser, async (req, res) => {
     const articles = [];
 
     $("a h3").each((i, element) => {
-      if (i < 5) {
+      if (i < 11) {
         // Get top 2 articles
         const title = $(element).text();
         const link = $(element).parent().attr("href");
