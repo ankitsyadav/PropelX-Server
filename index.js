@@ -9,7 +9,6 @@ const { swaggerUi, swaggerSpec } = require("./config/swagger");
 const path = require("path");
 const rateLimit = require("express-rate-limit");
 const session = require("express-session");
-// const linkedinAuth = require("./routes/linkedinAuth");
 
 // Route imports
 const homeRoutes = require("./routes/home");
@@ -19,59 +18,69 @@ const userRoutes = require("./routes/user");
 const feedRoutes = require("./routes/feeds");
 const mcqRoutes = require("./routes/mcq");
 const githubRoutes = require("./routes/github");
-const authController = require("./controllers/authController");
 
 // Initialize express app
 const app = express();
-app.set("trust proxy", 1);
+
+console.log("Application initialized");
 
 const corsOptions = {
-  origin: "*",
+  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : "*",
   optionsSuccessStatus: 200,
 };
+
+console.log("CORS options set:", corsOptions);
 
 // Set strictQuery option for Mongoose
 mongoose.set("strictQuery", true);
 
+console.log("Mongoose strictQuery set to true");
+
 // Configure rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: "Too many requests from this IP, please try again after an hour",
-  handler: (req, res, next, options) => {
-    res.status(options.statusCode).json({ error: options.message });
+  handler: (req, res) => {
+    console.log("Rate limit exceeded for IP:", req.ip);
+    res.status(429).json({ error: "Too many requests, please try again later" });
   },
-  trustProxy: false, // Set trust proxy to false to prevent IP bypass
 });
+
+console.log("Rate limiter configured");
 
 // Middlewares
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(limiter);
 
+console.log("Middlewares applied: cors, express.json, rate limiter");
+
 // Express session setup
 app.use(
   session({
-    secret: "secretKey",
+    secret: process.env.SESSION_SECRET || "fallback_secret_key",
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000
+    }
   })
 );
 
-// Serve Swagger UI assets
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use(
-  "/swagger-ui",
-  express.static(path.join(__dirname, "node_modules/swagger-ui-dist"))
-); // Serve static files
+console.log("Express session configured");
 
-// Initialize LinkedIn authentication routes
-// app.use(linkedinAuth);
-
-// LinkedIn login link
-// app.get("/", (req, res) => {
-//   res.send('<a href="/auth/linkedin">Log in with LinkedIn</a>');
-// });
+// Serve Swagger UI assets only in development
+if (process.env.NODE_ENV !== 'production') {
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.use(
+    "/swagger-ui",
+    express.static(path.join(__dirname, "node_modules/swagger-ui-dist"))
+  );
+  console.log("Swagger UI set up for development environment");
+}
 
 // Route Middlewares
 app.use("/", homeRoutes);
@@ -83,17 +92,17 @@ app.use("/api/feeds", feedRoutes);
 app.use("/api/skills", mcqRoutes);
 app.use("/api/auth/github", githubRoutes);
 
-// Log Environment Variables
-logger.info(`DB_URL: ${process.env.DB_URL}`);
-logger.info(`PORT: ${process.env.PORT}`);
+console.log("All routes middleware applied");
 
 // Connect to Database
 const mongoURI = process.env.DB_URL;
 
 if (!mongoURI) {
-  logger.error("Missing DB_URL in environment variables");
+  console.error("Missing DB_URL in environment variables");
   throw new Error("Missing DB_URL in environment variables");
 }
+
+console.log("Attempting to connect to database...");
 
 mongoose
   .connect(mongoURI, {
@@ -101,24 +110,46 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    logger.info("Connected to Database");
+    console.log("Successfully connected to Database");
   })
   .catch((error) => {
-    logger.error("Error connecting to Database:", error);
-    process.exit(1); // Ensure process exits on database connection failure
+    console.error("Error connecting to Database:", error);
+    process.exit(1);
   });
 
 // Error Handling Middleware
 app.use(errorHandler);
 
+console.log("Error handling middleware applied");
+
 // Default Route Handler for undefined routes
-app.use((req, res, next) => {
+app.use((req, res) => {
+  console.log("404 error: Page not found for URL:", req.url);
   res.status(404).send("404: Page not found");
 });
 
+console.log("Default 404 route handler set up");
+
 // Start the server
-const PORT = process.env.PORT || 0; // 0 will use a random available port
-// ... existing code ...
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+const PORT = process.env.PORT || 3000;
+
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+} else {
+  console.log("Production environment detected, exporting app for Vercel");
+}
+
+// Logging middleware for all requests
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} request to ${req.url}`);
+  next();
 });
+
+console.log("Request logging middleware applied");
+
+// For Vercel deployment
+module.exports = app;
+
+console.log("App exported for Vercel deployment");
