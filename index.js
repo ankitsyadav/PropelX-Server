@@ -9,6 +9,7 @@ const { swaggerUi, swaggerSpec } = require("./config/swagger");
 const path = require("path");
 const rateLimit = require("express-rate-limit");
 const session = require("express-session");
+const bodyParser = require('body-parser');
 
 // Route imports
 const homeRoutes = require("./routes/home");
@@ -52,6 +53,7 @@ console.log("Rate limiter configured");
 // Middlewares
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(limiter);
 
 console.log("Middlewares applied: cors, express.json, rate limiter");
@@ -81,6 +83,12 @@ if (process.env.NODE_ENV !== 'production') {
   );
   console.log("Swagger UI set up for development environment");
 }
+
+// Add this just before your route middlewares
+app.use((req, res, next) => {
+  console.log('Request Body:', req.body);
+  next();
+});
 
 // Route Middlewares
 app.use("/", homeRoutes);
@@ -120,8 +128,16 @@ mongoose
     console.log("Application will continue without database connection");
   });
 
-// Error Handling Middleware
-app.use(errorHandler);
+// Modify your error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(err.status || 500).json({
+    error: {
+      message: err.message || 'Internal Server Error',
+      stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack,
+    },
+  });
+});
 
 console.log("Error handling middleware applied");
 

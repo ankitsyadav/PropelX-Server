@@ -4,9 +4,12 @@ const jwt = require("jsonwebtoken");
 const { registerValidation, loginValidation } = require("../validations.js");
 const User = require("../models/UserModel");
 
+// Add this logging middleware
+router.use((req, res, next) => {
+  console.log('Auth Route - Request Body:', req.body);
+  next();
+});
 
-
-// Routers asasass
 // POST /register
 /**
  * @swagger
@@ -58,32 +61,39 @@ const User = require("../models/UserModel");
  *         description: Internal server error
  */
 router.post("/register", async (req, res) => {
-  // Validation check
-  const { error } = registerValidation(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
-
-  // Email uniqueness check
-  const emailExists = await User.findOne({ email: req.body.email });
-  if (emailExists) return res.status(400).send("Email address already exists");
-
-  // Hash the password
-  const salt = bcrypt.genSaltSync(10);
-  const hashedPassword = bcrypt.hashSync(req.body.password, salt);
-
-  // Save user
-  const user = User({
-    email: req.body.email,
-    name: req.body.name,
-    password: hashedPassword,
-    studentId: req.body.studentId,
-    phoneNo: req.body.phoneNo,
-  });
-
   try {
+    // Validation check
+    const { error } = registerValidation(req.body);
+    if (error) {
+      console.log('Validation error:', error.details[0].message);
+      return res.status(400).json({ error: error.details[0].message });
+    }
+
+    // Email uniqueness check
+    const emailExists = await User.findOne({ email: req.body.email });
+    if (emailExists) {
+      console.log('Email already exists:', req.body.email);
+      return res.status(400).json({ error: "Email address already exists" });
+    }
+
+    // Hash the password
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(req.body.password, salt);
+
+    // Save user
+    const user = new User({
+      email: req.body.email,
+      name: req.body.name,
+      password: hashedPassword,
+      studentId: req.body.studentId,
+      phoneNo: req.body.phoneNo,
+    });
+
     const newUser = await user.save();
-    res.send({ user: newUser._id });
+    res.status(201).json({ user: newUser._id });
   } catch (error) {
-    res.send({ message: error.message });
+    console.error('Registration error:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
