@@ -72,7 +72,7 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ error: error.details[0].message });
     }
 
-    const emailExists = await User.findOne({ email: req.body.email }).lean().maxTimeMS(5000);
+    const emailExists = await User.findOne({ email: req.body.email }).lean().maxTimeMS(30000);
     if (emailExists) {
       console.log('Email already exists:', req.body.email);
       return res.status(400).json({ error: "Email address already exists" });
@@ -88,7 +88,7 @@ router.post("/register", async (req, res) => {
       phoneNo: req.body.phoneNo,
     });
 
-    const newUser = await user.save({ timeout: 5000 });
+    const newUser = await user.save({ timeout: 30000 });
     console.log('User registered successfully:', newUser._id);
     res.status(201).json({ user: newUser._id });
   } catch (error) {
@@ -149,7 +149,7 @@ router.post("/login", async (req, res) => {
     if (error) return res.status(400).json({ error: error.details[0].message });
 
     // Email existence check
-    const registeredUser = await User.findOne({ email: req.body.email }).maxTimeMS(5000);
+    const registeredUser = await User.findOne({ email: req.body.email }).maxTimeMS(30000);
     if (!registeredUser)
       return res.status(400).json({ error: "User with this email does not exist" });
 
