@@ -105,6 +105,13 @@ console.log("All routes middleware applied");
 // Modify the database connection logic
 console.log("Attempting to connect to database...");
 
+const mongoURI = process.env.DB_URL;
+
+if (!mongoURI) {
+  console.error("Missing DB_URL in environment variables");
+  process.exit(1);
+}
+
 const connectToDatabase = async () => {
   try {
     await mongoose.connect(mongoURI, {
@@ -116,21 +123,20 @@ const connectToDatabase = async () => {
     console.log("Successfully connected to Database");
   } catch (error) {
     console.error("Error connecting to Database:", error);
-    // Retry connection after a delay
-    console.log("Retrying database connection in 5 seconds...");
-    setTimeout(connectToDatabase, 5000);
+    process.exit(1);
   }
 };
 
-connectToDatabase();
-
-// Connect to Database
-const mongoURI = process.env.DB_URL;
-
-if (!mongoURI) {
-  console.error("Missing DB_URL in environment variables");
-  throw new Error("Missing DB_URL in environment variables");
-}
+// Connect to the database before starting the server
+connectToDatabase().then(() => {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}).catch(err => {
+  console.error("Failed to connect to the database. Exiting...", err);
+  process.exit(1);
+});
 
 // Modify the error handling middleware
 app.use((err, req, res, next) => {
@@ -159,25 +165,6 @@ app.use((req, res) => {
 });
 
 console.log("Default 404 route handler set up");
-
-// Start the server
-const PORT = process.env.PORT || 3000;
-
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-} else {
-  console.log("Production environment detected, exporting app for Vercel");
-}
-
-// Logging middleware for all requests
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} request to ${req.url}`);
-  next();
-});
-
-console.log("Request logging middleware applied");
 
 // For Vercel deployment
 module.exports = app;
