@@ -23,6 +23,7 @@ const authController = require("./controllers/authController");
 
 // Initialize express app
 const app = express();
+app.set("trust proxy", 1);
 
 const corsOptions = {
   origin: "*",
