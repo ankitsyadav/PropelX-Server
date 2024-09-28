@@ -19,7 +19,7 @@ const registerValidation = (data) => {
             .default(Date.now),
 
         studentId: Joi.string().required(),
-        phoneNo: Joi.string().required().min(10).max(10),
+        phoneNo: Joi.string().required().min(12)
     })
 
     return schema.validate(data)
