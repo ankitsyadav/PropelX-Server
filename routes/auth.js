@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { registerValidation, loginValidation } = require("../validations.js");
 const User = require("../models/UserModel");
+const mongoose = require("mongoose");
 
 // Logging middleware
 router.use((req, res, next) => {

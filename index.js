@@ -116,7 +116,7 @@ mongoose
   .connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
+    serverSelectionTimeoutMS: 10000, // Increase timeout to 10 seconds
     socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
   })
   .then(() => {
