@@ -100,6 +100,9 @@ router.post("/register", async (req, res) => {
     res.status(201).json({ user: newUser._id });
   } catch (error) {
     console.error('Registration error:', error);
+    if (error.name === 'MongooseServerSelectionError') {
+      return res.status(503).json({ error: "Database connection error. Please try again later." });
+    }
     res.status(500).json({ error: "Registration failed. Please try again later." });
   }
 });

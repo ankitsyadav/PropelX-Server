@@ -102,6 +102,28 @@ app.use("/api/auth/github", githubRoutes);
 
 console.log("All routes middleware applied");
 
+// Modify the database connection logic
+console.log("Attempting to connect to database...");
+
+const connectToDatabase = async () => {
+  try {
+    await mongoose.connect(mongoURI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+    });
+    console.log("Successfully connected to Database");
+  } catch (error) {
+    console.error("Error connecting to Database:", error);
+    // Retry connection after a delay
+    console.log("Retrying database connection in 5 seconds...");
+    setTimeout(connectToDatabase, 5000);
+  }
+};
+
+connectToDatabase();
+
 // Connect to Database
 const mongoURI = process.env.DB_URL;
 
@@ -110,27 +132,16 @@ if (!mongoURI) {
   throw new Error("Missing DB_URL in environment variables");
 }
 
-console.log("Attempting to connect to database...");
-
-mongoose
-  .connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 10000, // Increase timeout to 10 seconds
-    socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-  })
-  .then(() => {
-    console.log("Successfully connected to Database");
-  })
-  .catch((error) => {
-    console.error("Error connecting to Database:", error);
-    // Don't exit the process, let the application continue
-    console.log("Application will continue without database connection");
-  });
-
-// Modify your error handling middleware
+// Modify the error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
+  if (err.name === 'MongooseServerSelectionError') {
+    return res.status(503).json({
+      error: {
+        message: 'Database connection error. Please try again later.',
+      },
+    });
+  }
   res.status(err.status || 500).json({
     error: {
       message: err.message || 'Internal Server Error',
