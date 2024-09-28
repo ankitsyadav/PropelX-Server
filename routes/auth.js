@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const { registerValidation, loginValidation } = require("../validations.js");
 const User = require("../models/UserModel");
 
-// Add this logging middleware
+// Logging middleware
 router.use((req, res, next) => {
   console.log('Auth Route - Request Body:', req.body);
   next();
@@ -40,7 +40,7 @@ router.use((req, res, next) => {
  *                 type: string
  *                 example: 1234567890
  *     responses:
- *       200:
+ *       201:
  *         description: User registered successfully
  *         content:
  *           application/json:
@@ -55,8 +55,10 @@ router.use((req, res, next) => {
  *         content:
  *           application/json:
  *             schema:
- *               type: string
- *               example: Email address already exists
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
  *       500:
  *         description: Internal server error
  */
@@ -64,25 +66,20 @@ router.post("/register", async (req, res) => {
   try {
     console.log('Registration attempt:', req.body);
 
-    // Validation check
     const { error } = registerValidation(req.body);
     if (error) {
       console.log('Validation error:', error.details[0].message);
       return res.status(400).json({ error: error.details[0].message });
     }
 
-    // Email uniqueness check
-    const emailExists = await User.findOne({ email: req.body.email }).maxTimeMS(5000);
+    const emailExists = await User.findOne({ email: req.body.email }).lean().maxTimeMS(5000);
     if (emailExists) {
       console.log('Email already exists:', req.body.email);
       return res.status(400).json({ error: "Email address already exists" });
     }
 
-    // Hash the password
-    const salt = bcrypt.genSaltSync(10);
-    const hashedPassword = bcrypt.hashSync(req.body.password, salt);
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-    // Save user
     const user = new User({
       email: req.body.email,
       name: req.body.name,
