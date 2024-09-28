@@ -75,7 +75,7 @@ const UserSchema = new mongoose.Schema({
   },
   profileImageUrl: {
     type: String,
-    default: "https://i.postimg.cc/fRfMHN9C/istockphoto-1220827245-612x612.jpg",
+    default: "https://i.postimg.cc/YSxTzMhH/istockphoto-2010149116-1024x1024.jpg",
   },
   skills: {
     type: [skillsSchema],
