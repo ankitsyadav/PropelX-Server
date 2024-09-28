@@ -62,6 +62,8 @@ router.use((req, res, next) => {
  */
 router.post("/register", async (req, res) => {
   try {
+    console.log('Registration attempt:', req.body);
+
     // Validation check
     const { error } = registerValidation(req.body);
     if (error) {
@@ -70,7 +72,7 @@ router.post("/register", async (req, res) => {
     }
 
     // Email uniqueness check
-    const emailExists = await User.findOne({ email: req.body.email });
+    const emailExists = await User.findOne({ email: req.body.email }).maxTimeMS(5000);
     if (emailExists) {
       console.log('Email already exists:', req.body.email);
       return res.status(400).json({ error: "Email address already exists" });
@@ -89,11 +91,12 @@ router.post("/register", async (req, res) => {
       phoneNo: req.body.phoneNo,
     });
 
-    const newUser = await user.save();
+    const newUser = await user.save({ timeout: 5000 });
+    console.log('User registered successfully:', newUser._id);
     res.status(201).json({ user: newUser._id });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Registration failed. Please try again later." });
   }
 });
 
@@ -141,27 +144,34 @@ router.post("/register", async (req, res) => {
  *         description: Internal server error
  */
 router.post("/login", async (req, res) => {
-  // Validation check
-  const { error } = loginValidation(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  try {
+    console.log('Login attempt:', req.body.email);
 
-  // Email existance check
-  const registeredUser = await User.findOne({ email: req.body.email });
-  if (!registeredUser)
-    return res.status(400).send("User with this email does not exist");
+    // Validation check
+    const { error } = loginValidation(req.body);
+    if (error) return res.status(400).json({ error: error.details[0].message });
 
-  // Check password
-  const passwordMatch = bcrypt.compareSync(
-    req.body.password,
-    registeredUser.password
-  );
-  if (!passwordMatch)
-    return res.status(400).send("Email or Password do not match");
+    // Email existence check
+    const registeredUser = await User.findOne({ email: req.body.email }).maxTimeMS(5000);
+    if (!registeredUser)
+      return res.status(400).json({ error: "User with this email does not exist" });
 
-  // Create and assign JWT
-  const token = jwt.sign({ _id: registeredUser._id }, process.env.JWT_SECRET);
-  console.log(typeof token);
-  res.header("auth-token", token).send(token);
+    // Check password
+    const passwordMatch = bcrypt.compareSync(
+      req.body.password,
+      registeredUser.password
+    );
+    if (!passwordMatch)
+      return res.status(400).json({ error: "Email or Password do not match" });
+
+    // Create and assign JWT
+    const token = jwt.sign({ _id: registeredUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    console.log('Login successful:', registeredUser._id);
+    res.header("auth-token", token).json({ token });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: "Login failed. Please try again later." });
+  }
 });
 
 module.exports = router;
