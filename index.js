@@ -108,13 +108,16 @@ mongoose
   .connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+    socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
   })
   .then(() => {
     console.log("Successfully connected to Database");
   })
   .catch((error) => {
     console.error("Error connecting to Database:", error);
-    process.exit(1);
+    // Don't exit the process, let the application continue
+    console.log("Application will continue without database connection");
   });
 
 // Error Handling Middleware
