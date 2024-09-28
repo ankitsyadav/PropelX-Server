@@ -10,6 +10,7 @@ const path = require("path");
 const rateLimit = require("express-rate-limit");
 const session = require("express-session");
 const bodyParser = require('body-parser');
+const MongoStore = require('connect-mongo');
 
 // Route imports
 const homeRoutes = require("./routes/home");
@@ -37,15 +38,16 @@ mongoose.set("strictQuery", true);
 
 console.log("Mongoose strictQuery set to true");
 
+// Add this line before setting up the rate limiter
+app.set('trust proxy', 1);
+
 // Configure rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
   message: "Too many requests from this IP, please try again after an hour",
-  handler: (req, res) => {
-    console.log("Rate limit exceeded for IP:", req.ip);
-    res.status(429).json({ error: "Too many requests, please try again later" });
-  },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 console.log("Rate limiter configured");
@@ -64,6 +66,7 @@ app.use(
     secret: process.env.SESSION_SECRET || "fallback_secret_key",
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.DB_URL }),
     cookie: {
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
@@ -103,8 +106,6 @@ app.use("/api/auth/github", githubRoutes);
 console.log("All routes middleware applied");
 
 // Modify the database connection logic
-console.log("Attempting to connect to database...");
-
 const mongoURI = process.env.DB_URL;
 
 if (!mongoURI) {
@@ -117,26 +118,38 @@ const connectToDatabase = async () => {
     await mongoose.connect(mongoURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 30000, // Increase timeout
       socketTimeoutMS: 45000,
     });
     console.log("Successfully connected to Database");
+    return true;
   } catch (error) {
     console.error("Error connecting to Database:", error);
-    process.exit(1);
+    return false;
   }
 };
 
-// Connect to the database before starting the server
-connectToDatabase().then(() => {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-}).catch(err => {
-  console.error("Failed to connect to the database. Exiting...", err);
+const startServer = async () => {
+  let retries = 5;
+  while (retries) {
+    const isConnected = await connectToDatabase();
+    if (isConnected) {
+      const PORT = process.env.PORT || 3000;
+      app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+      });
+      return;
+    }
+    console.log(`Retrying database connection... (${retries} attempts left)`);
+    retries -= 1;
+    // Wait for 5 seconds before retrying
+    await new Promise(resolve => setTimeout(resolve, 5000));
+  }
+  console.error("Failed to connect to the database after multiple attempts. Exiting...");
   process.exit(1);
-});
+};
+
+startServer();
 
 // Modify the error handling middleware
 app.use((err, req, res, next) => {
