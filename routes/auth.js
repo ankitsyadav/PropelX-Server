@@ -72,6 +72,12 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ error: error.details[0].message });
     }
 
+    // Check if the database connection is established
+    if (mongoose.connection.readyState !== 1) {
+      console.log('Database not connected');
+      return res.status(503).json({ error: "Service unavailable. Please try again later." });
+    }
+
     const emailExists = await User.findOne({ email: req.body.email }).lean().maxTimeMS(30000);
     if (emailExists) {
       console.log('Email already exists:', req.body.email);
