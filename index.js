@@ -87,7 +87,7 @@ if (process.env.NODE_ENV !== 'production') {
   console.log("Swagger UI set up for development environment");
 }
 
-// Add this just before your route middlewares
+// Logging middleware
 app.use((req, res, next) => {
   console.log('Request Body:', req.body);
   next();
