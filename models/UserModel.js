@@ -89,6 +89,10 @@ const UserSchema = new mongoose.Schema({
   socialMediaLinks: {
     type: [socialMediaLinksSchema],
   },
+  type: {
+    type: String,
+    default: "student", // Default role is student
+  },
 });
 
 ///we can define functions heat6

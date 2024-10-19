@@ -28,13 +28,14 @@ router.post("/register", async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
+    const userType = req.body.userType; 
     const newUser = await User.create({
       email: req.body.email,
       name: req.body.name,
       password: hashedPassword,
       studentId: req.body.studentId,
       phoneNo: req.body.phoneNo,
+      type: userType, 
     });
 
     console.log('User registered successfully:', newUser._id);
@@ -66,9 +67,9 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ error: "Invalid email or password" });
     }
 
-    const token = jwt.sign({ _id: registeredUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ _id: registeredUser._id,type:registeredUser.type }, process.env.JWT_SECRET, { expiresIn: '1h' });
     console.log('Login successful:', registeredUser._id);
-    res.header("auth-token", token).json({ token });
+    res.header("auth-token", token).json({ token,userType: registeredUser.type  });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: "Login failed. Please try again later." });
