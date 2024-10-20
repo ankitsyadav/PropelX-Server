@@ -22,6 +22,14 @@
     {
       "src": "/(.*)",
       "dest": "/index.js"
+    },
+    {
+      "src": "/api-docs",
+      "dest": "/api-docs/index.html"
+    },
+    {
+      "src": "/swagger-ui",
+      "dest": "/swagger-ui/index.html"
     }
   ]
 }
