@@ -27,6 +27,12 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ error: "Email address already exists" });
     }
 
+    // Check if studentId already exists
+    const existingUser = await User.findOne({ studentId: req.body.studentId });
+    if (existingUser) {
+      return res.status(400).json({ message: `Student ID already exists: ${req.body.studentId}` });
+    }
+
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const userType = req.body.userType; 
     const newUser = await User.create({

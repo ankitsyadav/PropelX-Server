@@ -90,6 +90,7 @@ const UserSchema = new mongoose.Schema({
   },
   type: {
     type: String,
+    enum: ["student", "trainer"], // Enum for role
     default: "student", // Default role is student
   },
 });
