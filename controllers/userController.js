@@ -28,6 +28,77 @@ const ensureDirectoryExistence = (dir) => {
 };
 
 // Update user profile image
+/**
+ * @swagger
+ * /users/{id}/profile-image:
+ *   put:
+ *     summary: Update user profile image
+ *     description: Updates the profile image of a user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       description: The request body should contain the profile image
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               profileImage:
+ *                 type: string
+ *                 description: The profile image URL
+ *                 example: "https://example.com/profile-image.jpg"
+ *     responses:
+ *       200:
+ *         description: Profile image updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Success message
+ *                   example: "Profile image updated successfully"
+ *                 profileImageUrl:
+ *                   type: string
+ *                   description: The URL of the updated profile image
+ *                   example: "https://cloudinary.com/updated-profile-image.jpg"
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message
+ *                   example: "Invalid request"
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message
+ *                   example: "User not found"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message
+ *                   example: "Internal server error"
+ */
 const updateProfileImage = async (req, res) => {
   upload(req, res, async (err) => {
     if (err) {

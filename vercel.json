@@ -30,6 +30,10 @@
     {
       "src": "/swagger-ui",
       "dest": "/swagger-ui/index.html"
+    },
+    {
+      "src": "/api-docs",
+      "status": 404
     }
   ]
 }

@@ -10,6 +10,82 @@ router.use((req, res, next) => {
   next();
 });
 
+// Swagger documentation
+/**
+ * @swagger
+ * /register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *               - name
+ *               - studentId
+ *               - trainerId
+ *               - phoneNo
+ *               - type
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: user@example.com
+ *               password:
+ *                 type: string
+ *                 example: password123
+ *               name:
+ *                 type: string
+ *                 example: John Doe
+ *               studentId:
+ *                 type: string
+ *                 example: S123456
+ *               trainerId:
+ *                 type: string
+ *                 example: T123456
+ *               phoneNo:
+ *                 type: string
+ *                 example: +1234567890
+ *               type:
+ *                 type: string
+ *                 example: student
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: string
+ *                   example: 1234567890abcdef
+ *       400:
+ *         description: Validation error or user already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Email address already exists
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Registration failed. Please try again later.
+ */
+
 // POST /register
 router.post("/register", async (req, res) => {
   try {
@@ -55,6 +131,65 @@ router.post("/register", async (req, res) => {
     res.status(500).json({ error: "Registration failed. Please try again later." });
   }
 });
+
+// Swagger documentation
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Login a user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: user@example.com
+ *               password:
+ *                 type: string
+ *                 example: password123
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IjAwIiwidHlwZSI6IkpXVCJ9.eyJfaWQiOiI1ZmY2MmM1YzAwMTIxZTAwMTciLCJpYXQiOjE2MDYwNTk2NTl9.T9lGf3tGfpRACiDfJOwJGnSLR7EhB3dJ
+ *                 userType:
+ *                   type: string
+ *                   example: student
+ *       400:
+ *         description: Invalid email or password
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Invalid email or password
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Login failed. Please try again later.
+ */
 
 // POST /login
 router.post("/login", async (req, res) => {
