@@ -46,7 +46,7 @@ const ProjectSchema = new mongoose.Schema({
   },
 });
 
-const UserSchema = new mongoose.Schema({
+const User = new mongoose.Schema({
   email: {
     type: String,
     required: true,
@@ -90,11 +90,11 @@ const UserSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ["student", "trainer"], // Enum for role
+    enum: ["student"], 
     default: "student", // Default role is student
   },
 });
 
 ///we can define functions heat6
 
-module.exports = mongoose.model("User", UserSchema);
+module.exports = mongoose.model("User", User);

@@ -42,7 +42,7 @@ const TrainerSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ["trainer", "admin"], // Enum for role
+    enum: ["trainer"],
     default: "trainer", // Default role is trainer
   },
   trainings: [TrainingSchema],

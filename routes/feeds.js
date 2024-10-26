@@ -68,14 +68,15 @@ router.post("/latest-articles", authenticateUser, async (req, res) => {
 
     $("a h3").each((i, element) => {
       if (i < 11) {
-        // Get top 2 articles
+        // Get top 10 articles
         const title = $(element).text();
         const link = $(element).parent().attr("href");
         articles.push({ title, link });
       }
     });
 
-    res.json({ articles });
+    // Return articles in the proper format
+    res.status(200).json({ articles: articles.map(article => ({ title: article.title, link: article.link })) });
   } catch (error) {
     console.error("Error fetching articles:", error);
     res
