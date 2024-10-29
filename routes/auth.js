@@ -3,88 +3,13 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { registerValidation, loginValidation } = require("../validations.js");
 const User = require("../models/UserModel");
+const Trainer = require("../models/TrainerModel");
 
 // Logging middleware
 router.use((req, res, next) => {
   console.log('Auth Route - Request Body:', req.body);
   next();
 });
-
-// Swagger documentation
-/**
- * @swagger
- * /register:
- *   post:
- *     summary: Register a new user
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *               - name
- *               - studentId
- *               - trainerId
- *               - phoneNo
- *               - type
- *             properties:
- *               email:
- *                 type: string
- *                 example: user@example.com
- *               password:
- *                 type: string
- *                 example: password123
- *               name:
- *                 type: string
- *                 example: John Doe
- *               studentId:
- *                 type: string
- *                 example: S123456
- *               trainerId:
- *                 type: string
- *                 example: T123456
- *               phoneNo:
- *                 type: string
- *                 example: +1234567890
- *               type:
- *                 type: string
- *                 example: student
- *     responses:
- *       201:
- *         description: User registered successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 user:
- *                   type: string
- *                   example: 1234567890abcdef
- *       400:
- *         description: Validation error or user already exists
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: Email address already exists
- *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: Registration failed. Please try again later.
- */
 
 // POST /register
 router.post("/register", async (req, res) => {
@@ -97,32 +22,51 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ error: error.details[0].message });
     }
 
-    const emailExists = await User.findOne({ email: req.body.email }).lean();
-    if (emailExists) {
-      console.log('Email already exists:', req.body.email);
-      return res.status(400).json({ error: "Email address already exists" });
+    if (req.body.type === 'student') {
+      const emailExists = await User.findOne({ email: req.body.email }).lean();
+      if (emailExists) {
+        console.log('Email already exists:', req.body.email);
+        return res.status(400).json({ error: "Email address already exists" });
+      }
+
+      // Check if studentId already exists
+      const existingUser = await User.findOne({ studentId: req.body.studentId });
+      if (existingUser) {
+        return res.status(400).json({ message: `Student ID already exists: ${req.body.studentId}` });
+      }
+
+      const hashedPassword = await bcrypt.hash(req.body.password, 10);
+      const newUser = await User.create({
+        email: req.body.email,
+        name: req.body.name,
+        password: hashedPassword,
+        studentId: req.body.studentId,
+        phone: req.body.phone, // Changed from phoneNo to phone
+        type: req.body.type, 
+      });
+
+      console.log('User registered successfully:', newUser._id);
+      res.status(201).json({ user: newUser._id });
+    } else if (req.body.type === 'trainer') {
+      const emailExists = await Trainer.findOne({ email: req.body.email }).lean();
+      if (emailExists) {
+        console.log('Email already exists:', req.body.email);
+        return res.status(400).json({ error: "Email address already exists" });
+      }
+
+      const hashedPassword = await bcrypt.hash(req.body.password, 10);
+      const newTrainer = await Trainer.create({
+        email: req.body.email,
+        name: req.body.name,
+        password: hashedPassword,
+        phone: req.body.phone, // Changed from phoneNo to phone
+        type: req.body.type, // Default role is trainer
+      });
+      console.log('Trainer registered successfully:', newTrainer._id);
+      res.status(201).json({ trainer: newTrainer._id });
+    } else {
+      return res.status(400).json({ error: "Invalid user type" });
     }
-
-    // Check if studentId already exists
-    const existingUser = await User.findOne({ studentId: req.body.studentId });
-    if (existingUser) {
-      return res.status(400).json({ message: `Student ID already exists: ${req.body.studentId}` });
-    }
-
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const userType = req.body.userType; 
-    const newUser = await User.create({
-      email: req.body.email,
-      name: req.body.name,
-      password: hashedPassword,
-      studentId: req.body.studentId,
-      trainerId:req.body.trainerId,
-      phoneNo: req.body.phoneNo,
-      type: userType, 
-    });
-
-    console.log('User registered successfully:', newUser._id);
-    res.status(201).json({ user: newUser._id });
   } catch (error) {
     console.error('Registration error:', error);
     if (error.name === 'MongooseServerSelectionError') {
@@ -132,65 +76,6 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// Swagger documentation
-/**
- * @swagger
- * /login:
- *   post:
- *     summary: Login a user
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *                 example: user@example.com
- *               password:
- *                 type: string
- *                 example: password123
- *     responses:
- *       200:
- *         description: Login successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 token:
- *                   type: string
- *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IjAwIiwidHlwZSI6IkpXVCJ9.eyJfaWQiOiI1ZmY2MmM1YzAwMTIxZTAwMTciLCJpYXQiOjE2MDYwNTk2NTl9.T9lGf3tGfpRACiDfJOwJGnSLR7EhB3dJ
- *                 userType:
- *                   type: string
- *                   example: student
- *       400:
- *         description: Invalid email or password
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: Invalid email or password
- *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: Login failed. Please try again later.
- */
-
 // POST /login
 router.post("/login", async (req, res) => {
   try {
@@ -199,7 +84,15 @@ router.post("/login", async (req, res) => {
     const { error } = loginValidation(req.body);
     if (error) return res.status(400).json({ error: error.details[0].message });
 
-    const registeredUser = await User.findOne({ email: req.body.email });
+    let registeredUser;
+    if (req.body.type === 'student') {
+      registeredUser = await User.findOne({ email: req.body.email });
+    } else if (req.body.type === 'trainer') {
+      registeredUser = await Trainer.findOne({ email: req.body.email });
+    } else {
+      return res.status(400).json({ error: "Invalid user type" });
+    }
+
     if (!registeredUser) {
       return res.status(400).json({ error: "Invalid email or password" });
     }

@@ -20,7 +20,7 @@ const registerValidation = (data) => {
 
         studentId: Joi.string().optional(),
         trainerId: Joi.string().optional(),
-        phoneNo: Joi.string().required().min(12),
+        phone: Joi.string().required(),
 
         type: Joi.string()
             .required()

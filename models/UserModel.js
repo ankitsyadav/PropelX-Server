@@ -1,4 +1,5 @@
 const { type } = require("@hapi/joi/lib/extend");
+const { required } = require("joi");
 const mongoose = require("mongoose");
 
 const socialMediaLinksSchema = new mongoose.Schema({
@@ -60,6 +61,11 @@ const User = new mongoose.Schema({
     type: String,
     required: true,
   },
+  gender:{
+    type: String,
+    enum: ["male","female"], 
+  }
+  ,
   phoneNo: {
     type: String,
     required: true,
@@ -67,6 +73,10 @@ const User = new mongoose.Schema({
   studentId: {
     type: String,
     unique: true,
+  },
+  wantToBe:{
+    type:String,
+    required:true,
   },
   date: {
     type: Date,

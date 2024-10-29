@@ -2,52 +2,6 @@ const router = require("express").Router();
 const axios = require("axios");
 const authenticateUser = require("./verifyToken.js");
 
-/**
- * @swagger
- * /mcq:
- *   get:
- *     summary: Fetches MCQ questions based on a skill
- *     tags: [MCQ]
- *     parameters:
- *       - in: query
- *         name: skill
- *         description: The skill for which questions are required
- *         required: true
- *         schema:
- *           type: string
- *           example: 'JavaScript'
- *     responses:
- *       200:
- *         description: List of questions
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   question:
- *                     type: string
- *                   options:
- *                     type: object
- *                     properties:
- *                       a:
- *                         type: string
- *                       b:
- *                         type: string
- *                       c:
- *                         type: string
- *                       d:
- *                         type: string
- *                   correctoption:
- *                     type: string
- *                   timePerQuestion:
- *                     type: number
- *       400:
- *         description: Skill query parameter is required
- *       500:
- *         description: An error occurred while fetching questions
- */
 router.get("/mcq", authenticateUser, async (req, res) => {
   const skill = req.query.skill;
   if (!skill) {

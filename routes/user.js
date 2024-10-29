@@ -7,22 +7,6 @@ const { updateProfileImage } = require("../controllers/userController");
 // POST /register and POST /login routes remain unchanged
 
 // GET /skills to get a list of skills for BTech graduates in India
-/**
- * @swagger
- * /skills:
- *   get:
- *     summary: Get a list of skills for BTech graduates in India
- *     tags: [Skills]
- *     responses:
- *       200:
- *         description: List of skills retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: string
- */
 router.get("/skillspopup", (req, res) => {
   const skills = [
     // Computer Science and IT
@@ -188,37 +172,13 @@ router.get("/skillspopup", (req, res) => {
     "Industry 4.0 in Chemical Manufacturing", "Internet of Things (IoT) in Process Control"
   ];
 
-  res.status(200).json(skills);
+  // Return random 10 skills
+  const randomSkills = skills.sort(() => 0.5 - Math.random()).slice(0, 10);
+
+  res.status(200).json(randomSkills);
 });
 
 // PUT /me/skills to update user skills
-/**
- * @swagger
- * /skills:
- *   put:
- *     summary: Update user skills
- *     tags: [User]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               skill_name:
- *                 type: string
- *               score:
- *                 type: number
- *     responses:
- *       200:
- *         description: Skills updated successfully
- *       404:
- *         description: User not found
- *       500:
- *         description: Server error
- */
 router.put("/skills", authenticateUser, async (req, res) => {
   try {
     const userId = req.user._id;
@@ -248,77 +208,9 @@ router.put("/skills", authenticateUser, async (req, res) => {
 });
 
 // PUT /:id/profile-image to update profile image
-/**
- * @swagger
- * /{id}/profile-image:
- *   put:
- *     summary: Update profile image
- *     tags: [User]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: The user ID
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               profileImage:
- *                 type: string
- *                 format: binary
- *     responses:
- *       200:
- *         description: Profile image updated successfully
- *       404:
- *         description: User not found
- *       500:
- *         description: Server error
- */
 router.put("/:id/profile-image", authenticateUser, updateProfileImage);
 
 // POST /projects to add a new project
-/**
- * @swagger
- * /projects:
- *   post:
- *     summary: Add a new project
- *     tags: [Projects]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               title:
- *                 type: string
- *               description:
- *                 type: string
- *               url:
- *                 type: string
- *               cover_image:
- *                 type: string
- *               tools_n_tech:
- *                 type: array
- *                 items:
- *                   type: string
- *     responses:
- *       200:
- *         description: Project added successfully
- *       404:
- *         description: User not found
- *       500:
- *         description: Server error
- */
 router.post("/projects", authenticateUser, async (req, res) => {
   try {
     const userId = req.user._id;
@@ -337,48 +229,6 @@ router.post("/projects", authenticateUser, async (req, res) => {
 });
 
 // PUT /projects/:projectId to update an existing project
-/**
- * @swagger
- * /projects/{projectId}:
- *   put:
- *     summary: Update an existing project
- *     tags: [Projects]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: projectId
- *         schema:
- *           type: string
- *         required: true
- *         description: The project ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               title:
- *                 type: string
- *               description:
- *                 type: string
- *               url:
- *                 type: string
- *               cover_image:
- *                 type: string
- *               tools_n_tech:
- *                 type: array
- *                 items:
- *                   type: string
- *     responses:
- *       200:
- *         description: Project updated successfully
- *       404:
- *         description: User or project not found
- *       500:
- *         description: Server error
- */
 router.put("/projects/:projectId", authenticateUser, async (req, res) => {
   try {
     const userId = req.user._id;
@@ -410,65 +260,6 @@ router.put("/projects/:projectId", authenticateUser, async (req, res) => {
 });
 
 // GET /me to get user details
-/**
- * @swagger
- * /me:
- *   get:
- *     summary: Get user details
- *     tags: [User]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: User details retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 _id:
- *                   type: string
- *                 email:
- *                   type: string
- *                 name:
- *                   type: string
- *                 phoneNo:
- *                   type: string
- *                 studentId:
- *                   type: string
- *                 profileImageUrl:
- *                   type: string
- *                 skills:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       skill_name:
- *                         type: string
- *                       score:
- *                         type: number
- *                 projects:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       title:
- *                         type: string
- *                       description:
- *                         type: string
- *                       url:
- *                         type: string
- *                       cover_image:
- *                         type: string
- *                       tools_n_tech:
- *                         type: array
- *                         items:
- *                           type: string
- *       404:
- *         description: User not found
- *       500:
- *         description: Server error
- */
 router.get("/me", authenticateUser, async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select("-password");
@@ -494,51 +285,6 @@ router.get("/getAll", async (req, res) => {
 });
 
 // PUT /me/socialMediaLinks to update social media links
-/**
- * @swagger
- * /me/socialMediaLinks:
- *   put:
- *     summary: Update user social media links
- *     tags: [User]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               socialMediaLinks:
- *                 type: array
- *                 items:
- *                   type: object
- *                   properties:
- *                     platform:
- *                       type: string
- *                     link:
- *                       type: string
- *     responses:
- *       200:
- *         description: Social media links updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   platform:
- *                     type: string
- *                   link:
- *                     type: string
- *       400:
- *         description: Bad request
- *       404:
- *         description: User not found
- *       500:
- *         description: Server error
- */
 router.put("/me/socialMediaLinks", authenticateUser, async (req, res) => {
   try {
     const userId = req.user._id;
