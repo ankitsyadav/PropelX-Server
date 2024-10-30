@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const { registerValidation, loginValidation } = require("../validations.js");
 const User = require("../models/UserModel");
 const Trainer = require("../models/TrainerModel");
+const Institute = require("../models/InstituteModel"); // Added Institute model
 
 // Logging middleware
 router.use((req, res, next) => {
@@ -44,6 +45,18 @@ router.post("/register", async (req, res) => {
         phone: req.body.phone, // Changed from phoneNo to phone
         type: req.body.type, 
       });
+
+      // Add student to institute if provided
+      if (req.body.instituteId) {
+        const institute = await Institute.findById(req.body.instituteId);
+        if (!institute) {
+          console.log('Institute not found:', req.body.instituteId);
+          return res.status(404).json({ error: "Institute not found" });
+        }
+        institute.students.push(newUser);
+        await institute.save();
+        console.log('Student added to institute successfully:', newUser._id);
+      }
 
       console.log('User registered successfully:', newUser._id);
       res.status(201).json({ user: newUser._id });
