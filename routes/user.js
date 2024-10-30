@@ -7,7 +7,7 @@ const { updateProfileImage } = require("../controllers/userController");
 // POST /register and POST /login routes remain unchanged
 
 // GET /skills to get a list of skills for BTech graduates in India
-router.get("/skillspopup", (req, res) => {
+router.get("/skillspopup", authenticateUser, async (req, res) => {
   const skills = [
     // Computer Science and IT
     "Java", "Python", "C++", "JavaScript", "HTML/CSS", "SQL", "Data Structures",
