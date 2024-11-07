@@ -40,6 +40,7 @@ console.log("Mongoose strictQuery set to true");
 
 // Add this line before setting up the rate limiter
 app.set('trust proxy', 1);
+console.log('checking')
 
 // Configure rate limiting
 const limiter = rateLimit({
