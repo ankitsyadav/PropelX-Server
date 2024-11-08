@@ -1,5 +1,4 @@
 const { type } = require("@hapi/joi/lib/extend");
-const { required } = require("joi");
 const mongoose = require("mongoose");
 
 const socialMediaLinksSchema = new mongoose.Schema({
@@ -38,7 +37,6 @@ const ProjectSchema = new mongoose.Schema({
   },
   cover_image: {
     type: String,
-
     default: "https://i.postimg.cc/mgWFQR8p/5ffhts.jpg",
   },
   tools_n_tech: {
@@ -61,22 +59,17 @@ const User = new mongoose.Schema({
     type: String,
     required: true,
   },
-  gender:{
+  gender: {
     type: String,
-    enum: ["male","female"], 
-  }
-  ,
-  phoneNo: {
+    enum: ["male", "female"], 
+  },
+  phone: {
     type: String,
     required: true,
   },
   studentId: {
     type: String,
     unique: true,
-  },
-  wantToBe:{
-    type:String,
-    required:true,
   },
   date: {
     type: Date,
@@ -90,7 +83,6 @@ const User = new mongoose.Schema({
     type: [skillsSchema],
     default: [],
   },
-
   projects: {
     type: [ProjectSchema],
     default: [],
@@ -101,10 +93,12 @@ const User = new mongoose.Schema({
   type: {
     type: String,
     enum: ["student"], 
-    default: "student", // Default role is student
+    default: "student",
+  },
+  present: {
+    type: Boolean,
+    default: true, // Default value is true
   },
 });
-
-///we can define functions heat6
 
 module.exports = mongoose.model("User", User);
