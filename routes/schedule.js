@@ -13,6 +13,7 @@ router.post("/class", async (req, res) => {
       semester: req.body.semester,
       subject: req.body.subject,
       date: req.body.date,
+      time: req.body.time,
       createdBy: req.body.createdBy,
     });
 
@@ -24,7 +25,9 @@ router.post("/class", async (req, res) => {
     });
   } catch (error) {
     console.error("Error during scheduling:", error);
-    res.status(500).json({ error: "Failed to schedule class. Please try again later." });
+    res
+      .status(500)
+      .json({ error: "Failed to schedule class. Please try again later." });
   }
 });
 
@@ -42,7 +45,11 @@ router.get("/classes", async (req, res) => {
     res.status(200).json(classes);
   } catch (error) {
     console.error("Error fetching class schedule list:", error);
-    res.status(500).json({ error: "Failed to retrieve class schedules. Please try again later." });
+    res
+      .status(500)
+      .json({
+        error: "Failed to retrieve class schedules. Please try again later.",
+      });
   }
 });
 
