@@ -52,5 +52,20 @@ router.get("/classes", async (req, res) => {
     });
   }
 });
+router.delete('/schedule/class/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedClass = await ScheduledClass.findByIdAndDelete(id);
+        
+        if (!deletedClass) {
+            return res.status(404).json({ message: 'Class not found' });
+        }
+        
+        res.status(200).json({ message: 'Class deleted successfully' });
+    } catch (err) {
+        console.error('Error deleting class:', err);
+        res.status(500).json({ message: 'Failed to delete class' });
+    }
+})
 
 module.exports = router;
