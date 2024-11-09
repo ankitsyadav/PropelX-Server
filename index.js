@@ -106,7 +106,7 @@ app.use("/api/feeds", feedRoutes);
 app.use("/api/skills", mcqRoutes);
 app.use("/api/auth/github", githubRoutes);
 app.use("/api/schedule", scheduleRoutes); 
-app.use('/attendance', attendanceRoutes);
+app.use('/api/attendance', attendanceRoutes);
 console.log("All routes middleware applied");
 
 // Modify the database connection logic
