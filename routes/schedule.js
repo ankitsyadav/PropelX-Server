@@ -52,10 +52,10 @@ router.get("/classes", async (req, res) => {
     });
   }
 });
-router.delete('/schedule/class/:id', async (req, res) => {
+router.delete('/class/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const deletedClass = await ScheduledClass.findByIdAndDelete(id);
+        const deletedClass = await ClassSchedule.findByIdAndDelete(id);
         
         if (!deletedClass) {
             return res.status(404).json({ message: 'Class not found' });
