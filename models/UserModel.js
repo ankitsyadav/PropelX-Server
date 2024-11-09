@@ -1,4 +1,3 @@
-const { type } = require("@hapi/joi/lib/extend");
 const mongoose = require("mongoose");
 
 const socialMediaLinksSchema = new mongoose.Schema({
@@ -45,6 +44,26 @@ const ProjectSchema = new mongoose.Schema({
   },
 });
 
+// Define Attendance Schema
+const attendanceSchema = new mongoose.Schema({
+  className: {
+    type: String,
+    required: true,
+  },
+  date: {
+    type: Date,
+    required: true,
+  },
+  time: {
+    type: String,
+    required: true,
+  },
+  present: {
+    type: Boolean,
+    default: true, // Default to true if not specified
+  },
+});
+
 const User = new mongoose.Schema({
   email: {
     type: String,
@@ -61,11 +80,11 @@ const User = new mongoose.Schema({
   },
   gender: {
     type: String,
-    enum: ["male", "female"], 
+    enum: ["male", "female"],
   },
   phone: {
     type: String,
-    required: true,
+    required: false,
   },
   studentId: {
     type: String,
@@ -92,13 +111,14 @@ const User = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ["student"], 
+    enum: ["student"],
     default: "student",
   },
   present: {
     type: Boolean,
-    default: true, // Default value is true
+    default: true, // Default value is true for presence
   },
+  attendance: [attendanceSchema], // Add attendance field to store records for each class
 });
 
 module.exports = mongoose.model("User", User);
