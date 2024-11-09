@@ -19,11 +19,18 @@ const classScheduleSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  time:{
+  college: {
     type: String,
     required: true,
   },
-
+  startTime: {
+    type: String,
+    required: true,
+  },
+  endTime: {
+    type: String,
+    required: true,
+  },
   createdBy: {
     type: String,
     required: true,

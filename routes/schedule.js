@@ -13,7 +13,9 @@ router.post("/class", async (req, res) => {
       semester: req.body.semester,
       subject: req.body.subject,
       date: req.body.date,
-      time: req.body.time,
+      college: req.body.college,
+      startTime: req.body.startTime,
+      endTime: req.body.endTime,
       createdBy: req.body.createdBy,
     });
 
@@ -45,11 +47,9 @@ router.get("/classes", async (req, res) => {
     res.status(200).json(classes);
   } catch (error) {
     console.error("Error fetching class schedule list:", error);
-    res
-      .status(500)
-      .json({
-        error: "Failed to retrieve class schedules. Please try again later.",
-      });
+    res.status(500).json({
+      error: "Failed to retrieve class schedules. Please try again later.",
+    });
   }
 });
 
