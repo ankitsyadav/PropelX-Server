@@ -21,6 +21,7 @@ const feedRoutes = require("./routes/feeds");
 const mcqRoutes = require("./routes/mcq");
 const githubRoutes = require("./routes/github");
 const scheduleRoutes = require("./routes/schedule");
+const attendanceRoutes = require('./routes/attendance');
 
 // Initialize express app
 const app = express();
@@ -105,6 +106,7 @@ app.use("/api/feeds", feedRoutes);
 app.use("/api/skills", mcqRoutes);
 app.use("/api/auth/github", githubRoutes);
 app.use("/api/schedule", scheduleRoutes); 
+app.use('/attendance', attendanceRoutes);
 console.log("All routes middleware applied");
 
 // Modify the database connection logic
