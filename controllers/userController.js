@@ -20,6 +20,8 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage }).single("profileImage");
 
+console.log(upload, "uploading profile image");
+
 // Ensure directory exists
 const ensureDirectoryExistence = (dir) => {
   if (!fs.existsSync(dir)) {
@@ -29,6 +31,8 @@ const ensureDirectoryExistence = (dir) => {
 
 // Update user profile image
 const updateProfileImage = async (req, res) => {
+  console.log(req.file, "reqdata");
+
   upload(req, res, async (err) => {
     if (err) {
       return res.status(400).json({ error: err.message });
