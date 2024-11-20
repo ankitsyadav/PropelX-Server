@@ -112,7 +112,7 @@ app.use("/api/auth/github", githubRoutes);
 app.use("/api/schedule", scheduleRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/admin", questionsRoutes);
-app.use("/api/quiz", quizRoutes);
+app.use("/api/quiz", quizScoreRoutes);
 console.log("All routes middleware applied");
 
 // Modify the database connection logic
