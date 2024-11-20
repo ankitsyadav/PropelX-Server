@@ -32,31 +32,53 @@ router.get("/leaderboard", async (req, res) => {
 
 // POST /api/quiz/submit - Submit quiz answers and calculate score
 router.post("/submit", async (req, res) => {
-  const { studentId, answers } = req.body;
-
-  if (!studentId || !answers) {
-    return res.status(400).json({ success: false, message: "Student ID and answers are required." });
-  }
-
-  try {
-    // Fetch all questions
-    const questions = await Question.find({});
-
-    // Calculate the score
-    let score = 0;
-    questions.forEach((question) => {
-      if (answers[question._id] === question.correctOption) {
-        score++;
+    const { studentId, answers } = req.body;
+  
+    if (!studentId || !answers) {
+      return res.status(400).json({
+        success: false,
+        message: "Student ID and answers are required.",
+      });
+    }
+  
+    try {
+      // Check if the student has already submitted the quiz
+      const existingSubmission = await QuizScore.findOne({ studentId });
+  
+      if (existingSubmission) {
+        return res.status(400).json({
+          success: false,
+          message: "You have already submitted the quiz. Multiple submissions are not allowed.",
+        });
       }
-    });
-
-    // Save the score to the database
-    const quizScore = new QuizScore({ studentId, score });
-    await quizScore.save();
-
-    res.status(200).json({ success: true, score, message: "Quiz submitted successfully!" });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Server error", error: error.message });
-  }
-});
+  
+      // Fetch all questions
+      const questions = await Question.find({});
+  
+      // Calculate the score
+      let score = 0;
+      questions.forEach((question) => {
+        if (answers[question._id] === question.correctOption) {
+          score++;
+        }
+      });
+  
+      // Save the score to the database
+      const quizScore = new QuizScore({ studentId, score });
+      await quizScore.save();
+  
+      res.status(200).json({
+        success: true,
+        score,
+        message: "Quiz submitted successfully!",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Server error",
+        error: error.message,
+      });
+    }
+  });
+  
 module.exports = router;
