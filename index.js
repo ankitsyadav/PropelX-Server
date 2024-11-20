@@ -9,8 +9,8 @@ const { swaggerUi, swaggerSpec } = require("./config/swagger");
 const path = require("path");
 const rateLimit = require("express-rate-limit");
 const session = require("express-session");
-const bodyParser = require('body-parser');
-const MongoStore = require('connect-mongo');
+const bodyParser = require("body-parser");
+const MongoStore = require("connect-mongo");
 
 // Route imports
 const homeRoutes = require("./routes/home");
@@ -21,7 +21,8 @@ const feedRoutes = require("./routes/feeds");
 const mcqRoutes = require("./routes/mcq");
 const githubRoutes = require("./routes/github");
 const scheduleRoutes = require("./routes/schedule");
-const attendanceRoutes = require('./routes/attendance');
+const attendanceRoutes = require("./routes/attendance");
+const questionsRoutes = require("./routes/questions");
 
 // Initialize express app
 const app = express();
@@ -29,7 +30,9 @@ const app = express();
 console.log("Application initialized");
 
 const corsOptions = {
-  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : "*",
+  origin: process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(",")
+    : "*",
   optionsSuccessStatus: 200,
 };
 
@@ -41,8 +44,8 @@ mongoose.set("strictQuery", true);
 console.log("Mongoose strictQuery set to true");
 
 // Add this line before setting up the rate limiter
-app.set('trust proxy', 1);
-console.log('checking')
+app.set("trust proxy", 1);
+console.log("checking");
 
 // Configure rate limiting
 const limiter = rateLimit({
@@ -73,15 +76,15 @@ app.use(
     cookie: {
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000
-    }
+      maxAge: 24 * 60 * 60 * 1000,
+    },
   })
 );
 
 console.log("Express session configured");
 
 // Serve Swagger UI assets only in development
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   app.use(
     "/swagger-ui",
@@ -92,7 +95,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Logging middleware
 app.use((req, res, next) => {
-  console.log('Request Body:', req.body);
+  console.log("Request Body:", req.body);
   next();
 });
 
@@ -105,8 +108,9 @@ app.use("/api/users", userRoutes);
 app.use("/api/feeds", feedRoutes);
 app.use("/api/skills", mcqRoutes);
 app.use("/api/auth/github", githubRoutes);
-app.use("/api/schedule", scheduleRoutes); 
-app.use('/api/attendance', attendanceRoutes);
+app.use("/api/schedule", scheduleRoutes);
+app.use("/api/attendance", attendanceRoutes);
+app.use("/api/admin", questionsRoutes);
 console.log("All routes middleware applied");
 
 // Modify the database connection logic
@@ -147,9 +151,11 @@ const startServer = async () => {
     console.log(`Retrying database connection... (${retries} attempts left)`);
     retries -= 1;
     // Wait for 5 seconds before retrying
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    await new Promise((resolve) => setTimeout(resolve, 5000));
   }
-  console.error("Failed to connect to the database after multiple attempts. Exiting...");
+  console.error(
+    "Failed to connect to the database after multiple attempts. Exiting..."
+  );
   process.exit(1);
 };
 
@@ -157,18 +163,18 @@ startServer();
 
 // Modify the error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  if (err.name === 'MongooseServerSelectionError') {
+  console.error("Error:", err);
+  if (err.name === "MongooseServerSelectionError") {
     return res.status(503).json({
       error: {
-        message: 'Database connection error. Please try again later.',
+        message: "Database connection error. Please try again later.",
       },
     });
   }
   res.status(err.status || 500).json({
     error: {
-      message: err.message || 'Internal Server Error',
-      stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack,
+      message: err.message || "Internal Server Error",
+      stack: process.env.NODE_ENV === "production" ? "🥞" : err.stack,
     },
   });
 });
