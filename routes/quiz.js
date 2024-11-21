@@ -70,44 +70,66 @@ router.get("/check-completion", async (req, res) => {
   const { studentId } = req.query;
 
   if (!studentId) {
-      return res.status(400).json({
-          success: false,
-          message: "Student ID is required.",
-      });
+    return res.status(400).json({
+      success: false,
+      message: "Student ID is required.",
+    });
   }
 
   try {
-      const existingSubmission = await QuizScore.findOne({ studentId });
+    // Check if the student has already submitted the quiz
+    const existingSubmission = await QuizScore.findOne({ studentId });
 
-      if (existingSubmission) {
-          const scores = await QuizScore.find({}).sort({ score: -1, timestamp: 1 });
-          const leaderboard = scores.map((score, index) => ({
-              _id: score._id,
-              studentId: score.studentId,
-              score: score.score,
-              timestamp: score.timestamp,
-              rank: index + 1,
-          }));
-          const studentRank = leaderboard.findIndex(
-              (entry) => entry.studentId === studentId
-          ) + 1;
+    if (existingSubmission) {
+      // Fetch all scores sorted by highest score and earliest submission
+      const scores = await QuizScore.find({}).sort({ score: -1, timestamp: 1 });
 
-          return res.status(200).json({
-              completed: true,
-              leaderboard,
-              studentRank,
-          });
-      }
+      // Fetch user details for all student IDs
+      const studentIds = scores.map((score) => score.studentId);
+      const users = await User.find({ _id: { $in: studentIds } });
 
-      res.status(200).json({ completed: false });
-  } catch (error) {
-      res.status(500).json({
-          success: false,
-          message: "Server error",
-          error: error.message,
+      // Create a leaderboard with student details
+      const leaderboard = scores.map((score, index) => {
+        const user = users.find((user) => user._id.toString() === score.studentId.toString());
+        return {
+          _id: score._id,
+          studentId: score.studentId,
+          studentName: user?.name || "Unknown", // Include student name
+          score: score.score,
+          timestamp: score.timestamp,
+          rank: index + 1, // Calculate rank based on sorted position
+        };
       });
+
+      // Find the student's rank
+      const studentRank =
+        leaderboard.findIndex((entry) => entry.studentId === studentId) + 1;
+
+      // Fetch the student's name
+      const student = await User.findOne({ _id: studentId });
+
+      return res.status(200).json({
+        completed: true,
+        leaderboard,
+        studentRank,
+        studentName: student?.name || "Unknown", // Include student's name in the response
+      });
+    }
+
+    res.status(200).json({
+      completed: false,
+      message: "The student has not yet completed the quiz.",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
   }
 });
+
+
 
 
 
