@@ -101,18 +101,17 @@ router.get("/check-completion", async (req, res) => {
         };
       });
 
-      // Find the student's rank
+      // Find the student's rank and score
       const studentRank =
         leaderboard.findIndex((entry) => entry.studentId === studentId) + 1;
-
-      // Fetch the student's name
-      const student = await User.findOne({ _id: studentId });
+      const studentEntry = leaderboard.find((entry) => entry.studentId === studentId);
 
       return res.status(200).json({
         completed: true,
         leaderboard,
         studentRank,
-        studentName: student?.name || "Unknown", // Include student's name in the response
+        studentName: studentEntry?.studentName || "Unknown", // Include student's name
+        studentScore: studentEntry?.score || 0, // Include student's score
       });
     }
 
@@ -128,6 +127,7 @@ router.get("/check-completion", async (req, res) => {
     });
   }
 });
+
 
 
 
