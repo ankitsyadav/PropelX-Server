@@ -65,7 +65,6 @@ router.get("/status", async (req, res) => {
   }
 });
 
-
 router.get("/check-completion", async (req, res) => {
   const { studentId } = req.query;
 
@@ -77,6 +76,9 @@ router.get("/check-completion", async (req, res) => {
   }
 
   try {
+    // Fetch all questions to calculate the total
+    const totalQuestions = await Question.countDocuments({});
+
     // Check if the student has already submitted the quiz
     const existingSubmission = await QuizScore.findOne({ studentId });
 
@@ -112,6 +114,7 @@ router.get("/check-completion", async (req, res) => {
         studentRank,
         studentName: studentEntry?.studentName || "Unknown", // Include student's name
         studentScore: studentEntry?.score || 0, // Include student's score
+        totalQuestions, // Include the total number of questions
       });
     }
 
@@ -127,6 +130,7 @@ router.get("/check-completion", async (req, res) => {
     });
   }
 });
+
 
 
 
