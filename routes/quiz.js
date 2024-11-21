@@ -65,6 +65,52 @@ router.get("/status", async (req, res) => {
   }
 });
 
+
+router.get("/check-completion", async (req, res) => {
+  const { studentId } = req.query;
+
+  if (!studentId) {
+      return res.status(400).json({
+          success: false,
+          message: "Student ID is required.",
+      });
+  }
+
+  try {
+      const existingSubmission = await QuizScore.findOne({ studentId });
+
+      if (existingSubmission) {
+          const scores = await QuizScore.find({}).sort({ score: -1, timestamp: 1 });
+          const leaderboard = scores.map((score, index) => ({
+              _id: score._id,
+              studentId: score.studentId,
+              score: score.score,
+              timestamp: score.timestamp,
+              rank: index + 1,
+          }));
+          const studentRank = leaderboard.findIndex(
+              (entry) => entry.studentId === studentId
+          ) + 1;
+
+          return res.status(200).json({
+              completed: true,
+              leaderboard,
+              studentRank,
+          });
+      }
+
+      res.status(200).json({ completed: false });
+  } catch (error) {
+      res.status(500).json({
+          success: false,
+          message: "Server error",
+          error: error.message,
+      });
+  }
+});
+
+
+
 router.get("/leaderboard", async (req, res) => {
   const { studentId } = req.query;
 
