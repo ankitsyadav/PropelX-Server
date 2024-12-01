@@ -1,47 +1,55 @@
 const router = require("express").Router();
-const axios = require("axios");
-const cheerio = require("cheerio");
-const authenticateUser = require("./verifyToken.js");
+const { OpenAI } = require("openai");
 
-router.post("/latest-articles", authenticateUser, async (req, res) => {
+
+const openAiApiKeyesssS = process.env.OPEN_API_KEY;
+
+const openai = new OpenAI({
+  apiKey: openAiApiKeyesssS,
+});
+
+router.post("/latest-articles", async (req, res) => {
   const { skill } = req.body;
 
-  if (!skill) {
-    return res.status(400).json({ error: "Skill is required" });
+  if (typeof skill !== "string" || !skill.trim()) {
+    return res.status(400).json({ error: "Skill must be a non-empty string" });
   }
 
   try {
-    const query = `latest ${skill}`;
-    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+    const prompt = `Generate a list of 10 article suggestions for the following topics: "${skill}". 
+    Format the response strictly in JSON like this:
+    [
+      { "title": "Title 1", "link": "https://example.com/article1" },
+      { "title": "Title 2", "link": "https://example.com/article2" },
+      ...
+    ]`;
 
-    const response = await axios.get(url, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-      },
+    const response = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        { role: "system", content: "You are an assistant that generates JSON responses only." },
+        { role: "user", content: prompt },
+      ],
     });
 
-    const html = response.data;
-    const $ = cheerio.load(html);
+    const rawContent = response.choices[0].message.content;
 
-    const articles = [];
+    let articles;
+    try {
+      // Validate JSON
+      articles = JSON.parse(rawContent);
+    } catch (err) {
+      console.error("Invalid JSON response:", rawContent);
+      return res.status(500).json({
+        error: "Invalid JSON response. Please try again.",
+        response: rawContent, // Return the raw response for debugging
+      });
+    }
 
-    $("a h3").each((i, element) => {
-      if (i < 11) {
-        // Get top 10 articles
-        const title = $(element).text();
-        const link = $(element).parent().attr("href");
-        articles.push({ title, link });
-      }
-    });
-
-    // Return articles in the proper format
-    res.status(200).json({ articles: articles.map(article => ({ title: article.title, link: article.link })) });
+    res.status(200).json({ articles });
   } catch (error) {
-    console.error("Error fetching articles:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while fetching articles" });
+    console.error("Error generating articles:", error.message);
+    res.status(500).json({ error: "An error occurred while generating articles" });
   }
 });
 

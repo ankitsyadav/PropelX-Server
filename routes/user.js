@@ -585,6 +585,44 @@ router.put("/skills", authenticateUser, async (req, res) => {
   }
 });
 
+// DELETE /skills to delete a skill
+router.delete("/skills/:skillName", authenticateUser, async (req, res) => {
+  try {
+    const userId = req.user._id; // Get the authenticated user's ID
+    const { skillName } = req.params; // Extract skill name from the route parameter
+
+    if (!skillName) {
+      return res.status(400).send("Skill name is required");
+    }
+
+    // Find the user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    // Find the index of the skill to delete
+    const skillIndex = user.skills.findIndex(
+      (skill) => skill.skill_name === skillName
+    );
+
+    if (skillIndex === -1) {
+      return res.status(404).send("Skill not found");
+    }
+
+    // Remove the skill from the skills array
+    user.skills.splice(skillIndex, 1);
+
+    // Save the updated user document
+    await user.save();
+
+    res.status(200).send("Skill deleted successfully");
+  } catch (error) {
+    console.error("Error deleting skill:", error.message);
+    res.status(500).send("Server Error");
+  }
+});
+
 // PUT /:id/profile-image to update profile image
 router.put("/:id/profile-image", authenticateUser, updateProfileImage);
 
@@ -640,7 +678,7 @@ router.put("/projects/:projectId", authenticateUser, async (req, res) => {
 // GET /me to get user details
 router.get("/me", authenticateUser, async (req, res) => {
   try {
-    console.log("Authenticated user:", req.user); 
+    console.log("Authenticated user:", req.user);
     // Fetch user data excluding the password
     const user = await User.findById(req.user?._id).select("-password");
     console.log(user, "Fetched user data>>>");
