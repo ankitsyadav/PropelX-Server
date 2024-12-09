@@ -29,7 +29,7 @@ exports.githubCallback = async (req, res) => {
         );
 
         if (!data.access_token) {
-            return res.status(400).send('Failed to obtain access token');
+            return res.status(400).send('Failed to obtain access tokenmm');
         }
 
         res.redirect(`https://www.propelx.club/dashboard?access_token=${data.access_token}`);
