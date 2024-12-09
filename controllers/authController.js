@@ -32,7 +32,7 @@ exports.githubCallback = async (req, res) => {
             return res.status(400).send('Failed to obtain access token');
         }
 
-        res.redirect(`https://propelxtech.vercel.app/dashboard?access_token=${data.access_token}`);
+        res.redirect(`https://www.propelx.club/dashboard?access_token=${data.access_token}`);
     } catch (error) {
         console.error('GitHub authentication error:', error);
         res.status(500).send('Authentication failed');
